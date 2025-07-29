@@ -1,15 +1,19 @@
 package com.example.campusexpensemanager.main.Model;
 
+import android.content.Context;
+
+import java.time.LocalDateTime;
+
 public class Category_Expense_Model {
     private int id;
     private String name;
     private int budget;
     private String description;
-    private String create_at;
-    private String update_at;
+    private LocalDateTime create_at;
+    private LocalDateTime update_at;
     private int userID;
 
-    public Category_Expense_Model(int _id, String _name, int _budget, String _descriptions, String _create_at, String _update_at, int _userID){
+    public Category_Expense_Model(int _id, String _name, int _budget, String _descriptions, LocalDateTime _create_at, LocalDateTime _update_at, int _userID){
         this.id          = _id;
         this.name        = _name;
         this.budget      = _budget;
@@ -24,9 +28,11 @@ public class Category_Expense_Model {
     public void setId(int id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -42,17 +48,17 @@ public class Category_Expense_Model {
     public void setDescription(String description) {
         this.description = description;
     }
-    public String getCreate_at() {
+    public LocalDateTime getCreate_at() {
         return create_at;
     }
-    public void setCreate_at(String create_at) {
+    public void setCreate_at(LocalDateTime create_at) {
         this.create_at = create_at;
     }
-    public String getUpdate_at() {
+    public LocalDateTime getUpdate_at() {
         return update_at;
     }
-    public void setUpdate_at(String update_at) {
-        update_at = update_at;
+    public void setUpdate_at(LocalDateTime update_at) {
+        this.update_at = update_at;
     }
     public int getUserID() {
         return userID;
@@ -60,5 +66,4 @@ public class Category_Expense_Model {
     public void setUserID(int userID) {
         this.userID = userID;
     }
-
 }
