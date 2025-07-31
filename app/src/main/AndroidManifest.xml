@@ -19,8 +19,10 @@
         android:theme="@style/Theme.CampusExpenseManager"
         tools:targetApi="31">
 
+
+        <activity android:name=".main.Activity.LoginActivity"/>
         <activity
-            android:name=".main.MainActivity"
+            android:name=".main.Activity.DashBroadActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
