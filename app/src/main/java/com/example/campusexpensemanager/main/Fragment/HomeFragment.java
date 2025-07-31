@@ -9,6 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +35,8 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    Category_Expense_Repository repository;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -60,7 +72,32 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        PieChart pieChart = view.findViewById(R.id.pieChart);
+        repository = new Category_Expense_Repository(getActivity());
+
+
+        Map<Integer, Integer> categoryExpenses = repository.getExpenseByCategory(0);
+
+        int totalAll = 0;
+        for (int value : categoryExpenses.values()) {
+            totalAll += value;
+        }
+
+        List<PieEntry> entries = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : categoryExpenses.entrySet()) {
+            float percent = (float) entry.getValue() * 100 / totalAll;  // tính phần trăm nếu cần
+            entries.add(new PieEntry(percent, entry.getKey()));
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "Chi tiêu theo loại");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        PieData data = new PieData(dataSet);
+        pieChart.setData(data);
+        pieChart.invalidate(); // refresh chart
+
+
+        return view;
     }
 }

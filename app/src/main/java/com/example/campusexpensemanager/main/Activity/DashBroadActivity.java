@@ -31,15 +31,11 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
-
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         viewPager2 = findViewById(R.id.view_pager2);
         drawerLayout = findViewById(R.id.draw_layout);
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigation);
-
-//        getSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayShowTitleEnabled(false);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -75,7 +71,6 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
             }
             return true;
         });
-
     }
     private void setupViewPage(){
         DashBroad_Adapter view = new DashBroad_Adapter(getSupportFragmentManager(), getLifecycle());

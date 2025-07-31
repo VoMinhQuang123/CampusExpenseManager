@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.Fragment.CategoryFragment">
+    tools:context=".main.Fragment.CategoryFragment"
+    android:padding="10dp"
+    android:layout_marginTop="15dp">
 
     <TextView
+        android:id="@+id/viewExpense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Budget list"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+
+    <Button
+        android:id="@+id/btnbudgetCeater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#1AA6E6"
+        android:text="Create budget"
+        android:layout_toRightOf="@id/btnbudgetCeater"
+        android:layout_alignParentRight="true"
+        android:padding="8dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBudget"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="hello_blank_fragment2" />
+        android:layout_below="@+id/btnbudgetCeater"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="?actionBarSize"
+        />
 
 
 
-</LinearLayout>
+</RelativeLayout>

@@ -28,9 +28,11 @@ public class Expense_Recurring_Model {
         this.categoryId     = _categoryId;
         this.userID         = _userID;
     }
+
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
