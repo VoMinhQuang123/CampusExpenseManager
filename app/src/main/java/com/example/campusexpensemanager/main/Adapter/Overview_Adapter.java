@@ -30,7 +30,7 @@ public class Overview_Adapter extends RecyclerView.Adapter<Overview_Adapter.Over
 
     public void setData(ArrayList<Category_Expense_Model> newList) {
         this.budgetModels = newList;
-        notifyDataSetChanged(); // Cập nhật lại giao diện
+        notifyDataSetChanged();
     }
 
     public Overview_Adapter(ArrayList<Category_Expense_Model> model, Context context) {

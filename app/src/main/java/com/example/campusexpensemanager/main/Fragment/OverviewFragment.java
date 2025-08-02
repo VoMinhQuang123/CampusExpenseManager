@@ -1,5 +1,7 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -84,35 +86,41 @@ public class OverviewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPref.getInt("userId", -1);
         PieChart pieChart = view.findViewById(R.id.pieChart);
         repository = new Category_Expense_Repository(getActivity());
         budgetRCC = view.findViewById(R.id.rvBudget);
         budgetModels = new ArrayList<>();
         repository = new Category_Expense_Repository(getActivity());
-        budgetModels= repository.getListBudget();
+        budgetModels= repository.getListBudget(userId);
         budget = new Overview_Adapter(budgetModels, getContext());
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         budgetRCC.setLayoutManager(manager);
         budgetRCC.setAdapter(budget);
 
 
-        Map<Integer, Integer> categoryExpenses = repository.getExpenseByCategory(0);
+        Map<Integer, Integer> categoryExpenses = repository.getExpenseByCategory(userId);
         int totalAll = 0;
         for (int value : categoryExpenses.values()) {
             totalAll += value;
+        }
+        if (totalAll == 0) {
+            pieChart.setNoDataText("Không có dữ liệu chi tiêu.");
+            return view;
         }
         List<PieEntry> entries = new ArrayList<>();
         for (Map.Entry<Integer, Integer> entry : categoryExpenses.entrySet()) {
             float percent = (float) entry.getValue() * 100 / totalAll;
             PieEntry pieEntry = new PieEntry(percent, "");
-            pieEntry.setData(entry.getKey()); // ✅ Gán categoryId vào PieEntry
+            pieEntry.setData(entry.getKey());
             entries.add(pieEntry);
         }
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
         PieData data = new PieData(dataSet);
         pieChart.setData(data);
-        pieChart.invalidate(); // refresh chart
+        pieChart.invalidate();
 
 
         pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
@@ -120,8 +128,8 @@ public class OverviewFragment extends Fragment {
             public void onValueSelected(Entry e, Highlight h) {
                 if (e instanceof PieEntry) {
                     PieEntry pieEntry = (PieEntry) e;
-                    int categoryId = (int) pieEntry.getData(); // ép kiểu đúng
-                    showExpensesByCategory(categoryId); // gọi hiển thị chi tiết
+                    int categoryId = (int) pieEntry.getData();
+                    showExpensesByCategory(categoryId);
                 }
             }
             @Override

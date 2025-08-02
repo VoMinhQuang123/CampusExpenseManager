@@ -23,11 +23,12 @@ public class Category_Expense_Repository extends SQLite_Campus {
         super(context);
     }
     @SuppressLint("Range")
-    public ArrayList<Category_Expense_Model> getListBudget() {
+    public ArrayList<Category_Expense_Model> getListBudget(int userID) {
         ArrayList<Category_Expense_Model> arrayList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + SQLite_Campus.DB_TABLE_BUDGET +
-                " WHERE " + SQLite_Campus.COL_BUDGET_USERID + " = 0", null);
+        Cursor cursor = db.rawQuery( "SELECT * FROM " + SQLite_Campus.DB_TABLE_BUDGET +
+                        " WHERE " + SQLite_Campus.COL_BUDGET_USERID + " = ?",
+                new String[]{String.valueOf(userID)});
 
 
         if (cursor != null && cursor.getCount() > 0) {
@@ -107,14 +108,14 @@ public class Category_Expense_Repository extends SQLite_Campus {
         db.close();
         return result;
     }
-    public int getTotalExpense() {
+    public int getTotalExpense(int userId) {
         int total = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
         // Truy vấn tính tổng cột "expensive"
-        Cursor cursor = db.rawQuery(
-                "SELECT SUM(" + SQLite_Campus.COL_BUDGET_EXPENSIVE + ") AS Total FROM " + SQLite_Campus.DB_TABLE_BUDGET,
-                null
+        Cursor cursor = db.rawQuery("SELECT SUM(" + SQLite_Campus.COL_BUDGET_EXPENSIVE + ") AS Total FROM " + SQLite_Campus.DB_TABLE_BUDGET +
+                        " WHERE " + SQLite_Campus.COL_BUDGET_USERID + " = ?",
+        new String[]{String.valueOf(userId)}
         );
 
         if (cursor != null && cursor.moveToFirst()) {

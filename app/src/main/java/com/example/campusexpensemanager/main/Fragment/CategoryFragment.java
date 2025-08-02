@@ -1,6 +1,8 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -77,18 +79,23 @@ public class CategoryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPref.getInt("userId", -1);
         View view =  inflater.inflate(R.layout.fragment_category, container, false);
         Button btnCreateBudget = view.findViewById(R.id.btnbudgetCeater);
         budgetRCC = view.findViewById(R.id.rvBudget);
         budgetModels = new ArrayList<>();
         repository = new Category_Expense_Repository(getActivity());
-        budgetModels= repository.getListBudget();
+        budgetModels= repository.getListBudget(userId);
         budget = new Category_Adapter(budgetModels, getContext());
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         budgetRCC.setLayoutManager(manager);
         budgetRCC.setAdapter(budget);
+
+
+
         ViewExpense = view.findViewById(R.id.viewExpense);
-        int total = repository.getTotalExpense();
+        int total = repository.getTotalExpense(userId);
         ViewExpense.setText("Amounts: " + total + " VNĐ");
 
 

@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.campusexpensemanager.main.Fragment.CategoryFragment;
 import com.example.campusexpensemanager.main.Fragment.ExpenseFragment;
 import com.example.campusexpensemanager.main.Fragment.HomeFragment;
+import com.example.campusexpensemanager.main.Fragment.IncomeFragment;
 import com.example.campusexpensemanager.main.Fragment.OverviewFragment;
 
 public class DashBroad_Adapter extends FragmentStateAdapter {
@@ -30,12 +31,15 @@ public class DashBroad_Adapter extends FragmentStateAdapter {
         if(position == 3){
             return new OverviewFragment();
         }
+        if(position == 4){
+            return new IncomeFragment();
+        }
         else {
             return new HomeFragment();
         }
     }
     @Override
     public int getItemCount() {
-        return 4;
+        return 5;
     }
 }

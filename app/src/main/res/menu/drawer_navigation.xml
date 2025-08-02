@@ -14,6 +14,10 @@
             android:title="Expense"
             android:icon="@drawable/card"/>
         <item
+            android:id="@+id/menu_income"
+            android:title="Income"
+            android:icon="@drawable/overview"/>
+        <item
             android:id="@+id/menu_overview"
             android:title="Overview"
             android:icon="@drawable/overview"/>

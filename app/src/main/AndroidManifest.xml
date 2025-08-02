@@ -20,9 +20,12 @@
         tools:targetApi="31">
 
         <activity android:name=".main.Category.AddCategoryActivity"/>
-        <activity android:name=".main.Activity.LoginActivity"/>
+        <activity android:name=".main.Activity.SettingActivity"/>
+<!--        <activity android:name=".main.Activity.LoginActivity"/>-->
+        <activity android:name=".main.Activity.RegisterActivity"/>
+        <activity android:name=".main.Activity.DashBroadActivity"/>
         <activity
-            android:name=".main.Activity.DashBroadActivity"
+            android:name=".main.Activity.LoginActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
