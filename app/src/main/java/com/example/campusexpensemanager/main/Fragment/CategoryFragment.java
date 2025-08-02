@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
-import com.example.campusexpensemanager.main.Category.AddCategoryActivity;
+import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
 

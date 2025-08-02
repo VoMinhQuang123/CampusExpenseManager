@@ -29,6 +29,32 @@ public class SQLite_Campus extends SQLiteOpenHelper {
     protected static final String COL_BUDGET_EXPENSIVE = "expensive";
     protected static final String COL_BUDGET_DESCRIPTION = "description";
     protected  static  final String COL_BUDGET_USERID = "userID";
+
+    // table expense
+    protected static final String DB_TABLE_EXPENSE_TRACKING = "expense_tracking";
+    protected static final String COL_EXP_TRACKING_ID = "id_Tracking";
+    protected static final String COL_EXP_TRACKING_NAME = "name";
+    protected static final String COL_EXP_TRACKING_EXPENSE = "expense";
+    protected static final String COL_EXP_TRACKING_NOTE = "note";
+    protected static final String COL_EXP_TRACKING_CREATED_AT = "created_at";
+    protected static final String COL_EXP_TRACKING_UPDATED_AT = "update_at";
+    protected static final String COL_EXP_TRACKING_CATEGORY_ID = "categoryId";
+    protected static final String COL_EXP_TRACKING_USER_ID = "userID";
+
+    // table recurring
+    protected static final String DB_TABLE_EXPENSE_RECURRING = "expense_recurring";
+    protected static final String COL_EXP_RECURRING_ID = "id_Recurring";
+    protected static final String COL_EXP_RECURRING_NAME = "name";
+    protected static final String COL_EXP_RECURRING_EXPENSE = "expense";
+    protected static final String COL_EXP_RECURRING_NOTE = "note";
+    protected static final String COL_EXP_RECURRING_CREATED_AT = "created_at";
+    protected static final String COL_EXP_RECURRING_UPDATED_AT = "update_at";
+    protected static final String COL_EXP_RECURRING_REPEAT_INTERVAL = "repeatInterval";
+    protected static final String COL_EXP_RECURRING_START_DATE = "start_date";
+    protected static final String COL_EXP_RECURRING_END_DATE = "end_date";
+    protected static final String COL_EXP_RECURRING_CATEGORY_ID = "categoryId";
+    protected static final String COL_EXP_RECURRING_USER_ID = "userID";
+
     public SQLite_Campus(@Nullable Context context) {
         super(context, DB_Name, null, DB_version);
     }
@@ -60,6 +86,38 @@ public class SQLite_Campus extends SQLiteOpenHelper {
                 + " FOREIGN KEY(" + COL_BUDGET_USERID + ") REFERENCES " + DB_table_user + "(" + COl_User_ID + ")"
                 + " )";
         db.execSQL(CreateBudgetTable);
+
+        // Expense Tracking table
+        String CreateExpenseTrackingTable = "CREATE TABLE " + DB_TABLE_EXPENSE_TRACKING + " ("
+                + COL_EXP_TRACKING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_EXP_TRACKING_NAME + " TEXT NOT NULL, "
+                + COL_EXP_TRACKING_EXPENSE + " REAL NOT NULL, "
+                + COL_EXP_TRACKING_NOTE + " TEXT, "
+                + COL_EXP_TRACKING_CREATED_AT + " DATETIME, "
+                + COL_EXP_TRACKING_UPDATED_AT + " DATETIME, "
+                + COL_EXP_TRACKING_CATEGORY_ID + " INTEGER, "
+                + COL_EXP_TRACKING_USER_ID + " INTEGER, "
+                + "FOREIGN KEY(" + COL_EXP_TRACKING_USER_ID + ") REFERENCES " + DB_table_user + "(" + COl_User_ID + "), "
+                + "FOREIGN KEY(" + COL_EXP_TRACKING_CATEGORY_ID + ") REFERENCES " + DB_TABLE_BUDGET + "(" + COL_BUDGET_ID + ")"
+                + ")";
+        db.execSQL(CreateExpenseTrackingTable);
+
+        String CreateExpenseRecurringTable = "CREATE TABLE " + DB_TABLE_EXPENSE_RECURRING + " ("
+                + COL_EXP_RECURRING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_EXP_RECURRING_NAME + " TEXT NOT NULL, "
+                + COL_EXP_RECURRING_EXPENSE + " REAL NOT NULL, "
+                + COL_EXP_RECURRING_NOTE + " TEXT, "
+                + COL_EXP_RECURRING_CREATED_AT + " DATETIME, "
+                + COL_EXP_RECURRING_UPDATED_AT + " DATETIME, "
+                + COL_EXP_RECURRING_REPEAT_INTERVAL + " INTEGER NOT NULL, "
+                + COL_EXP_RECURRING_START_DATE + " DATETIME, "
+                + COL_EXP_RECURRING_END_DATE + " DATETIME, "
+                + COL_EXP_RECURRING_CATEGORY_ID + " INTEGER, "
+                + COL_EXP_RECURRING_USER_ID + " INTEGER, "
+                + "FOREIGN KEY(" + COL_EXP_RECURRING_USER_ID + ") REFERENCES " + DB_table_user + "(" + COl_User_ID + "), "
+                + "FOREIGN KEY(" + COL_EXP_RECURRING_CATEGORY_ID + ") REFERENCES " + DB_TABLE_BUDGET + "(" + COL_BUDGET_ID + ")"
+                + ")";
+        db.execSQL(CreateExpenseRecurringTable);
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

@@ -1,6 +1,5 @@
-package com.example.campusexpensemanager.main.Category;
+package com.example.campusexpensemanager.main.Activity.Category;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
