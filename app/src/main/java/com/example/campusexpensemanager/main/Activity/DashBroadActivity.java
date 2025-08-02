@@ -41,11 +41,9 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
         setupViewPage();
-
         Menu menu = navigationView.getMenu();
         MenuItem logout = menu.findItem(R.id.logout);
-
-
+        MenuItem setting = menu.findItem(R.id.menu_setting);
         logout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
@@ -60,13 +58,13 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
             if(item.getItemId() == R.id.menu_home){
                 viewPager2.setCurrentItem(0);
             }
-            if(item.getItemId() == R.id.menu_expense){
+            if(item.getItemId() == R.id.menu_budget){
                 viewPager2.setCurrentItem(1);
             }
-            if(item.getItemId() == R.id.menu_budget){
+            if(item.getItemId() == R.id.menu_expense){
                 viewPager2.setCurrentItem(2);
             }
-            if(item.getItemId() == R.id.menu_setting){
+            if(item.getItemId() == R.id.menu_overview){
                 viewPager2.setCurrentItem(3);
             }
             return true;
@@ -87,13 +85,13 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
                     bottomNavigationView.getMenu().findItem(R.id.menu_home).setChecked(true);
                 }
                 if(position == 1){
-                    bottomNavigationView.getMenu().findItem(R.id.menu_expense).setChecked(true);
-                }
-                if(position == 2){
                     bottomNavigationView.getMenu().findItem(R.id.menu_budget).setChecked(true);
                 }
+                if(position == 2){
+                    bottomNavigationView.getMenu().findItem(R.id.menu_expense).setChecked(true);
+                }
                 if(position == 3){
-                    bottomNavigationView.getMenu().findItem(R.id.menu_setting).setChecked(true);
+                    bottomNavigationView.getMenu().findItem(R.id.menu_overview).setChecked(true);
                 }
             }
             @Override
@@ -107,13 +105,13 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
         if(item.getItemId() == R.id.menu_home){
             viewPager2.setCurrentItem(0);
         }
-        if(item.getItemId() == R.id.menu_expense){
+        if(item.getItemId() == R.id.menu_budget){
             viewPager2.setCurrentItem(1);
         }
-        if(item.getItemId() == R.id.menu_budget){
+        if(item.getItemId() == R.id.menu_expense){
             viewPager2.setCurrentItem(2);
         }
-        if(item.getItemId() == R.id.menu_setting){
+        if(item.getItemId() == R.id.menu_overview){
             viewPager2.setCurrentItem(3);
         }
         drawerLayout.closeDrawer(GravityCompat.START);

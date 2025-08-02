@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.campusexpensemanager.R;
-import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
 import com.example.campusexpensemanager.main.Adapter.Overview_Adapter;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
@@ -30,10 +29,10 @@ import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
+ * Use the {@link OverviewFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class OverviewFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -43,13 +42,14 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
     private ArrayList<Category_Expense_Model> budgetModels;
     private Overview_Adapter budget;
     private Category_Expense_Model model;
     private Category_Expense_Repository repository;
     private RecyclerView budgetRCC;
 
-    public HomeFragment() {
+    public OverviewFragment() {
         // Required empty public constructor
     }
 
@@ -59,11 +59,11 @@ public class HomeFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment BlankFragment.
+     * @return A new instance of fragment SettingFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
+    public static OverviewFragment newInstance(String param1, String param2) {
+        OverviewFragment fragment = new OverviewFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -83,7 +83,6 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         PieChart pieChart = view.findViewById(R.id.pieChart);
         repository = new Category_Expense_Repository(getActivity());
@@ -105,7 +104,7 @@ public class HomeFragment extends Fragment {
         List<PieEntry> entries = new ArrayList<>();
         for (Map.Entry<Integer, Integer> entry : categoryExpenses.entrySet()) {
             float percent = (float) entry.getValue() * 100 / totalAll;
-            PieEntry pieEntry = new PieEntry(percent, "" + entry.getKey());
+            PieEntry pieEntry = new PieEntry(percent, "");
             pieEntry.setData(entry.getKey()); // ✅ Gán categoryId vào PieEntry
             entries.add(pieEntry);
         }
@@ -144,5 +143,4 @@ public class HomeFragment extends Fragment {
         budget.setData(filtered);
         budget.notifyDataSetChanged();
     }
-
 }

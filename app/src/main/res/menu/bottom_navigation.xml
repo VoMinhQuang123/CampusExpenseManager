@@ -5,15 +5,15 @@
         android:title="Home"
         android:icon="@drawable/home"/>
     <item
+        android:id="@+id/menu_budget"
+        android:title="Budget"
+        android:icon="@drawable/budget"/>
+    <item
         android:id="@+id/menu_expense"
         android:title="Expense"
         android:icon="@drawable/card"/>
     <item
-        android:id="@+id/menu_budget"
-        android:title="Budgets"
-        android:icon="@drawable/balande"/>
-    <item
-        android:id="@+id/menu_setting"
-        android:title="Setting"
-        android:icon="@drawable/setting"/>
+        android:id="@+id/menu_overview"
+        android:title="Overview"
+        android:icon="@drawable/overview"/>
 </menu>
