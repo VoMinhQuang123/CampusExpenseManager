@@ -6,7 +6,6 @@ public class User_Model {
     private String email;
     private String password;
     private String phone;
-    private int role;
     private String create_at;
     private String Update_at;
 
@@ -48,14 +47,6 @@ public class User_Model {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public int getRole() {
-        return role;
-    }
-
-    public void setRole(int role) {
-        this.role = role;
     }
 
     public String getCreate_at() {

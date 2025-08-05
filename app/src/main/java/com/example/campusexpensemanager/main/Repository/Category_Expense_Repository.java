@@ -23,11 +23,12 @@ public class Category_Expense_Repository extends SQLite_Campus {
         super(context);
     }
     @SuppressLint("Range")
-    public ArrayList<Category_Expense_Model> getListBudget() {
+    public ArrayList<Category_Expense_Model> getListBudget(int userID) {
         ArrayList<Category_Expense_Model> arrayList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + SQLite_Campus.DB_TABLE_BUDGET +
-                " WHERE " + SQLite_Campus.COL_BUDGET_USERID + " = 0", null);
+        Cursor cursor = db.rawQuery( "SELECT * FROM " + SQLite_Campus.DB_TABLE_BUDGET +
+                        " WHERE " + SQLite_Campus.COL_BUDGET_USERID + " = ?",
+                new String[]{String.valueOf(userID)});
 
 
         if (cursor != null && cursor.getCount() > 0) {
@@ -107,14 +108,14 @@ public class Category_Expense_Repository extends SQLite_Campus {
         db.close();
         return result;
     }
-    public int getTotalExpense() {
+    public int getTotalExpense(int userId) {
         int total = 0;
         SQLiteDatabase db = this.getReadableDatabase();
 
         // Truy vấn tính tổng cột "expensive"
-        Cursor cursor = db.rawQuery(
-                "SELECT SUM(" + SQLite_Campus.COL_BUDGET_EXPENSIVE + ") AS Total FROM " + SQLite_Campus.DB_TABLE_BUDGET,
-                null
+        Cursor cursor = db.rawQuery("SELECT SUM(" + SQLite_Campus.COL_BUDGET_EXPENSIVE + ") AS Total FROM " + SQLite_Campus.DB_TABLE_BUDGET +
+                        " WHERE " + SQLite_Campus.COL_BUDGET_USERID + " = ?",
+        new String[]{String.valueOf(userId)}
         );
 
         if (cursor != null && cursor.moveToFirst()) {
@@ -124,7 +125,6 @@ public class Category_Expense_Repository extends SQLite_Campus {
             }
             cursor.close();
         }
-
         db.close();
         return total;
     }
@@ -150,7 +150,58 @@ public class Category_Expense_Repository extends SQLite_Campus {
         }
         db.close();
         return map;
+    }
+    // Lấy danh sách các khoản chi tiêu theo categoryId
+    @SuppressLint("Range")
+    public ArrayList<Category_Expense_Model> getExpensesByCategoryId(int categoryId) {
+        ArrayList<Category_Expense_Model> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM " + SQLite_Campus.DB_TABLE_BUDGET +
+                        " WHERE " + SQLite_Campus.COL_BUDGET_ID + " = ?",
+                new String[]{String.valueOf(categoryId)}
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            DateTimeFormatter formatter = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            }
+
+            do {
+                LocalDateTime createAt = null;
+                LocalDateTime updateAt = null;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && formatter != null) {
+                    String createStr = cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_Create_at));
+                    String updateStr = cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_Update_at));
+
+                    if (createStr != null && !createStr.isEmpty()) {
+                        createAt = LocalDateTime.parse(createStr, formatter);
+                    }
+
+                    if (updateStr != null && !updateStr.isEmpty()) {
+                        updateAt = LocalDateTime.parse(updateStr, formatter);
+                    }
+                }
+
+                list.add(new Category_Expense_Model(
+                        cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_BUDGET_ID)),
+                        cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_BUDGET_NAME)),
+                        cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_BUDGET_EXPENSIVE)),
+                        cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_BUDGET_DESCRIPTION)),
+                        createAt,
+                        updateAt,
+                        cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_BUDGET_USERID))
+                ));
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        db.close();
+        return list;
     }
 
 }

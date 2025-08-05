@@ -1,6 +1,7 @@
-package com.example.campusexpensemanager.main.Category;
+package com.example.campusexpensemanager.main.Activity.Category;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -32,6 +33,9 @@ public class AddCategoryActivity extends AppCompatActivity {
         edtDescritions = findViewById(R.id.edtDescritions);
         repository = new Category_Expense_Repository(AddCategoryActivity.this);
 
+        SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
+        int userId = sharedPref.getInt("userId", -1);
+
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,7 +50,9 @@ public class AddCategoryActivity extends AppCompatActivity {
                     edtBudgetMoney.setError("Null!");
                     return;
                 }
-                long insert =  repository.addNewBudget(name, expensive, descriptions, 0);
+
+                long insert =  repository.addNewBudget(name, expensive, descriptions, userId);
+
                 if(insert == -1){
                     Toast.makeText(AddCategoryActivity.this, "can not create", Toast.LENGTH_SHORT).show();
                     return;
@@ -58,12 +64,12 @@ public class AddCategoryActivity extends AppCompatActivity {
                 }
             }
         });
-
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AddCategoryActivity.this, CategoryFragment.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

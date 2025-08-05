@@ -44,10 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:visibility="visible"
         app:headerLayout="@layout/header_drawer_navigation"
-        app:menu="@menu/drawer_navigation"
-
-    />
-
-
+        app:menu="@menu/drawer_navigation" />
 </androidx.drawerlayout.widget.DrawerLayout>

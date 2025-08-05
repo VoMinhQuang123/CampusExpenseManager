@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update budget"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"/>
+
+    <EditText
+        android:id="@+id/edtBudgetName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:hint="Enter name budget"
+        android:inputType="text"
+        android:autofillHints="false"
+        />
+
+    <EditText
+        android:id="@+id/edtBudgetMoney"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:hint="Enter expensive budget"
+        android:inputType="numberDecimal"
+        android:autofillHints="false"
+        />
+    <EditText
+        android:id="@+id/edtDescritions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:hint="Descritions"
+        android:inputType="textMultiLine"
+        android:autofillHints="false"
+        />
+
+    <Button
+        android:id="@+id/btnSaveBudget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#29B0ED"
+        android:text="save"
+        android:layout_marginTop="15dp"/>
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#11D2EB"
+        android:text="back"
+        android:layout_marginTop="15dp"/>
+
+
+</LinearLayout>

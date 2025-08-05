@@ -1,6 +1,8 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -14,8 +16,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
 import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
-import com.example.campusexpensemanager.main.Category.AddCategoryActivity;
+import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
 
@@ -77,41 +80,49 @@ public class CategoryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPref.getInt("userId", -1);
+
         View view =  inflater.inflate(R.layout.fragment_category, container, false);
         Button btnCreateBudget = view.findViewById(R.id.btnbudgetCeater);
         budgetRCC = view.findViewById(R.id.rvBudget);
         budgetModels = new ArrayList<>();
         repository = new Category_Expense_Repository(getActivity());
-        budgetModels= repository.getListBudget();
+
+        budgetModels= repository.getListBudget(userId);
+
         budget = new Category_Adapter(budgetModels, getContext());
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         budgetRCC.setLayoutManager(manager);
         budgetRCC.setAdapter(budget);
+
+
+
         ViewExpense = view.findViewById(R.id.viewExpense);
-        int total = repository.getTotalExpense();
+        int total = repository.getTotalExpense(userId);
         ViewExpense.setText("Amounts: " + total + " VNĐ");
 
 
-//        budget.setOnClickListener(new Budget.OnClickListener() {
-//            @Override
-//            public void onClick(int position) {
-//                Category_Expense_Model model1 = budgetModels.get(position);
-//                String name = model1.getName();
-//                int expenseve = model1.getExpensive();
-//                int id = model1.getId();
-//                String des = model1.getDescription();
-//                // use intent + bundle sang edit
-//                // Toast.makeText(getActivity(), name, Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(getActivity(), EditBudgetActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putInt("ID_BUDGET", id);
-//                bundle.putString("NAME_BUDGET", name);
-//                bundle.putInt("MONEY_BUDGET", expenseve);
-//                bundle.putString("DESCRIPTION", des);
-//                intent.putExtras(bundle);
-//                startActivity(intent);
-//            }
-//        });
+        budget.setOnClickListener(new Category_Adapter.OnClickListener() {
+            @Override
+            public void onClick(int position) {
+                Category_Expense_Model model1 = budgetModels.get(position);
+                String name = model1.getName();
+                int expenseve = model1.getBudget();
+                int id = model1.getId();
+                String des = model1.getDescription();
+                // use intent + bundle sang edit
+                // Toast.makeText(getActivity(), name, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), EditCategoryActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("ID_BUDGET", id);
+                bundle.putString("NAME_BUDGET", name);
+                bundle.putInt("MONEY_BUDGET", expenseve);
+                bundle.putString("DESCRIPTION", des);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
 
         btnCreateBudget.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,4 +133,6 @@ public class CategoryFragment extends Fragment {
         });
         return view;
     }
+
+
 }

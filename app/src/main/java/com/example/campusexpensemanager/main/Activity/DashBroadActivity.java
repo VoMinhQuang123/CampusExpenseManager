@@ -1,6 +1,7 @@
 package com.example.campusexpensemanager.main.Activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,14 +42,28 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
         setupViewPage();
-
         Menu menu = navigationView.getMenu();
         MenuItem logout = menu.findItem(R.id.logout);
+        MenuItem setting = menu.findItem(R.id.menu_setting);
 
-
+        setting.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem item) {
+                Intent intent = new Intent(DashBroadActivity.this, SettingActivity.class);
+                startActivity(intent);
+                finish();
+                return false;
+            }
+        });
         logout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
+                SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.remove("userId");
+                editor.clear();
+                editor.apply();
+
                 Intent intent = new Intent(DashBroadActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
@@ -60,14 +75,17 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
             if(item.getItemId() == R.id.menu_home){
                 viewPager2.setCurrentItem(0);
             }
-            if(item.getItemId() == R.id.menu_expense){
+            if(item.getItemId() == R.id.menu_budget){
                 viewPager2.setCurrentItem(1);
             }
-            if(item.getItemId() == R.id.menu_budget){
+            if(item.getItemId() == R.id.menu_expense){
                 viewPager2.setCurrentItem(2);
             }
-            if(item.getItemId() == R.id.menu_setting){
+            if(item.getItemId() == R.id.menu_overview){
                 viewPager2.setCurrentItem(3);
+            }
+            if(item.getItemId() == R.id.menu_income){
+                viewPager2.setCurrentItem(4);
             }
             return true;
         });
@@ -87,13 +105,13 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
                     bottomNavigationView.getMenu().findItem(R.id.menu_home).setChecked(true);
                 }
                 if(position == 1){
-                    bottomNavigationView.getMenu().findItem(R.id.menu_expense).setChecked(true);
-                }
-                if(position == 2){
                     bottomNavigationView.getMenu().findItem(R.id.menu_budget).setChecked(true);
                 }
+                if(position == 2){
+                    bottomNavigationView.getMenu().findItem(R.id.menu_expense).setChecked(true);
+                }
                 if(position == 3){
-                    bottomNavigationView.getMenu().findItem(R.id.menu_setting).setChecked(true);
+                    bottomNavigationView.getMenu().findItem(R.id.menu_overview).setChecked(true);
                 }
             }
             @Override
@@ -107,14 +125,17 @@ public class DashBroadActivity extends AppCompatActivity implements NavigationVi
         if(item.getItemId() == R.id.menu_home){
             viewPager2.setCurrentItem(0);
         }
-        if(item.getItemId() == R.id.menu_expense){
+        if(item.getItemId() == R.id.menu_budget){
             viewPager2.setCurrentItem(1);
         }
-        if(item.getItemId() == R.id.menu_budget){
+        if(item.getItemId() == R.id.menu_expense){
             viewPager2.setCurrentItem(2);
         }
-        if(item.getItemId() == R.id.menu_setting){
+        if(item.getItemId() == R.id.menu_overview){
             viewPager2.setCurrentItem(3);
+        }
+        if(item.getItemId() == R.id.menu_income){
+            viewPager2.setCurrentItem(4);
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
