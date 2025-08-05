@@ -10,7 +10,7 @@ public class SQLite_Campus extends SQLiteOpenHelper {
 
     private static final String DB_Name = "Campus_Expensive";
 
-    private static final int DB_version = 3;
+    private static final int DB_version = 4;
 
     //User table
     protected static final String DB_table_user = "User";
@@ -124,6 +124,8 @@ public class SQLite_Campus extends SQLiteOpenHelper {
         if(oldVersion != newVersion){
             db.execSQL("DROP TABLE IF EXISTS " + DB_table_user);
             db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_BUDGET);
+            db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_EXPENSE_TRACKING);
+            db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_EXPENSE_RECURRING);
             onCreate(db);}
     }
 }

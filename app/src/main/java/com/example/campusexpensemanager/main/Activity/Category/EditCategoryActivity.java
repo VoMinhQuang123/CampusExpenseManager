@@ -16,29 +16,46 @@ import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Fragment.CategoryFragment;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
 
-public class AddCategoryActivity extends AppCompatActivity {
+public class EditCategoryActivity extends AppCompatActivity {
     Button btnSave, btnBack;
     EditText edtNameBudget, edtBudgetMoney, edtDescritions;
 
     Category_Expense_Repository repository;
 
+    private int ID_BUDGET = 0;
+    private String NAME_BUDGET = null;
+    private int MONEY_BUDGET = 0;
+    private String DESCRIPTION = null;
+
+    Intent intentBudget;
+    Bundle bundleBudget;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_category);
+        setContentView(R.layout.activity_edit_category);
         btnBack = findViewById(R.id.btnBack);
         btnSave = findViewById(R.id.btnSaveBudget);
         edtNameBudget = findViewById(R.id.edtBudgetName);
         edtBudgetMoney = findViewById(R.id.edtBudgetMoney);
         edtDescritions = findViewById(R.id.edtDescritions);
-        repository = new Category_Expense_Repository(AddCategoryActivity.this);
-
-        SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
-        int userId = sharedPref.getInt("userId", -1);
+        repository = new Category_Expense_Repository(EditCategoryActivity.this);
+        intentBudget = getIntent();
+        bundleBudget = intentBudget.getExtras();
+        if (bundleBudget != null){
+            ID_BUDGET = bundleBudget.getInt("ID_BUDGET", 0);
+            NAME_BUDGET = bundleBudget.getString("NAME_BUDGET", null);
+            MONEY_BUDGET = bundleBudget.getInt("MONEY_BUDGET", 0);
+            DESCRIPTION = bundleBudget.getString("DESCRIPTION", null);
+            edtNameBudget.setText(NAME_BUDGET);
+            edtBudgetMoney.setText(String.valueOf(MONEY_BUDGET));
+            edtDescritions.setText(DESCRIPTION);
+        }
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int id =  ID_BUDGET ;
                 String name = edtNameBudget.getText().toString().trim();
                 int expensive = Integer.parseInt(edtBudgetMoney.getText().toString().trim());
                 String descriptions = edtDescritions.getText().toString().trim();
@@ -50,16 +67,14 @@ public class AddCategoryActivity extends AppCompatActivity {
                     edtBudgetMoney.setError("Null!");
                     return;
                 }
-
-                long insert =  repository.addNewBudget(name, expensive, descriptions, userId);
-
+                long insert =  repository.editBudget(id, name, expensive, descriptions);
                 if(insert == -1){
-                    Toast.makeText(AddCategoryActivity.this, "can not create", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditCategoryActivity.this, "can not create", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 else {
-                    Toast.makeText(AddCategoryActivity.this, "create success", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(AddCategoryActivity.this, CategoryFragment.class);
+                    Toast.makeText(EditCategoryActivity.this, "create success", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(EditCategoryActivity.this, CategoryFragment.class);
                     startActivity(intent);
                 }
             }
@@ -67,7 +82,7 @@ public class AddCategoryActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(AddCategoryActivity.this, CategoryFragment.class);
+                Intent intent = new Intent(EditCategoryActivity.this, CategoryFragment.class);
                 startActivity(intent);
                 finish();
             }

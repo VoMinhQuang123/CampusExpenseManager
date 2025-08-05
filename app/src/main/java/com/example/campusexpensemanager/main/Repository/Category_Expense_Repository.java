@@ -150,7 +150,6 @@ public class Category_Expense_Repository extends SQLite_Campus {
         }
         db.close();
         return map;
-
     }
     // Lấy danh sách các khoản chi tiêu theo categoryId
     @SuppressLint("Range")

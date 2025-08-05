@@ -97,5 +97,13 @@
             android:layout_height="wrap_content"
             android:text="Thêm chi phí"
             android:layout_marginTop="24dp" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#11D2EB"
+            android:text="back"
+            android:layout_marginTop="15dp"/>
     </LinearLayout>
 </ScrollView>

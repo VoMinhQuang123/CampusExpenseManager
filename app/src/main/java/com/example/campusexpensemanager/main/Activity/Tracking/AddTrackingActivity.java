@@ -1,5 +1,6 @@
 package com.example.campusexpensemanager.main.Activity.Tracking;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -13,7 +14,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
 import com.example.campusexpensemanager.main.Database.SQLite_Campus;
+import com.example.campusexpensemanager.main.Fragment.CategoryFragment;
+import com.example.campusexpensemanager.main.Fragment.ExpenseFragment;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
 import com.example.campusexpensemanager.main.Repository.Expense_Tracking_Repository;
@@ -21,7 +25,7 @@ import com.example.campusexpensemanager.main.Repository.Expense_Tracking_Reposit
 import java.util.ArrayList;
 
 public class AddTrackingActivity extends AppCompatActivity {
-
+    Button btnSave, btnBack;
     EditText edtName, edtExpense, edtNote;
     Spinner spinnerCategory;
     Button btnAddTracking;
@@ -40,6 +44,7 @@ public class AddTrackingActivity extends AppCompatActivity {
         edtNote = findViewById(R.id.edtTrackingNote);
         spinnerCategory = findViewById(R.id.spinnerCategory);
         btnAddTracking = findViewById(R.id.btnAddTracking);
+        btnBack = findViewById(R.id.btnBack);
 
         SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
         int userId = sharedPref.getInt("userId", -1);
@@ -64,6 +69,14 @@ public class AddTrackingActivity extends AppCompatActivity {
 
         spinnerCategory.setAdapter(adapter);
 
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AddTrackingActivity.this, ExpenseFragment.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 }
