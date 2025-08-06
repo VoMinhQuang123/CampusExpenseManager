@@ -146,6 +146,7 @@ public class AddRecurringActivity extends AppCompatActivity {
                 }
 
                 int categoryId = categoryList.get(selectedIndex).getId();
+
                 Expense_Reccuring_Repository recurringRepository = new Expense_Reccuring_Repository(AddRecurringActivity.this);
                 long result = recurringRepository.addNewRecurring(
                         name,

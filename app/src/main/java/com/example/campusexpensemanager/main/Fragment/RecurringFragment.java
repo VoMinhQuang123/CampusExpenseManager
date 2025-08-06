@@ -17,7 +17,9 @@ import android.widget.TextView;
 
 import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
+import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
 import com.example.campusexpensemanager.main.Activity.Recurring.AddRecurringActivity;
+import com.example.campusexpensemanager.main.Activity.Recurring.EditRecurringActivity;
 import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
 import com.example.campusexpensemanager.main.Adapter.Recurring_Adapter;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
@@ -54,9 +56,7 @@ public class RecurringFragment extends Fragment {
 
 
 
-    public RecurringFragment() {
-        // Required empty public constructor
-    }
+
 
     /**
      * Use this factory method to create a new instance of
@@ -112,9 +112,37 @@ public class RecurringFragment extends Fragment {
             }
         });
 
+        budget.setOnClickListener(new Recurring_Adapter.OnClickListener() {
+            @Override
+            public void onClick(int position) {
+                Expense_Recurring_Model selectedModel = Models.get(position);
+                int id = selectedModel.getId();
+                String name = selectedModel.getName();
+                double expense = selectedModel.getExpense();
+                String note = selectedModel.getNote();
+                String startDate = selectedModel.getStart_date().toString(); // convert LocalDateTime to String
+                String endDate = selectedModel.getEnd_date().toString();
+                int repeatDays = selectedModel.getRepeatInterval();
+                int categoryId = selectedModel.getCategoryId();
+                String categoryName = selectedModel.getCategoryName(); // <-- Make sure your model has this getter
 
+                Intent intent = new Intent(getActivity(), EditRecurringActivity.class);
+                Bundle bundle = new Bundle();
 
-
+                bundle.putInt("ID_RECURRING", id);
+                bundle.putString("NAME_RECURRING", name);
+                bundle.putDouble("MONEY_RECURRING", expense);
+                bundle.putString("NOTE_RECURRING", note);
+                bundle.putString("START_DATE", startDate);
+                bundle.putString("END_DATE", endDate);
+                bundle.putInt("REPEAT_DAYS", repeatDays);
+                // bundle.putInt("CATEGORY_ID", categoryId); // Loại bỏ
+                bundle.putString("CATEGORY_NAME", categoryName); // <-- Thêm cái này để dùng cho spinnerCategory
+                bundle.putInt("USER_ID", userId); // Truyền user_id để load lại đúng danh sách category
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 }

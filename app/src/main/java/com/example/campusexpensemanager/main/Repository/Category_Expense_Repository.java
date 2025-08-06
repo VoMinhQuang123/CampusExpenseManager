@@ -20,8 +20,10 @@ import java.util.Map;
 
 public class Category_Expense_Repository extends SQLite_Campus {
     public Category_Expense_Repository(@Nullable Context context) {
+
         super(context);
     }
+
     @SuppressLint("Range")
     public ArrayList<Category_Expense_Model> getListBudget(int userID) {
         ArrayList<Category_Expense_Model> arrayList = new ArrayList<>();
@@ -203,5 +205,6 @@ public class Category_Expense_Repository extends SQLite_Campus {
         db.close();
         return list;
     }
+
 
 }
