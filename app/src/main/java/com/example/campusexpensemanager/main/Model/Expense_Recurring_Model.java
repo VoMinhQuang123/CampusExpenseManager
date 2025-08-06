@@ -13,6 +13,7 @@ public class Expense_Recurring_Model {
     private LocalDateTime start_date;
     private LocalDateTime end_date;
     private int categoryId;
+    private String categoryName;
     private int userID;
 
     public Expense_Recurring_Model(int _id, String _name, double _expense, String _note, LocalDateTime _create_at, LocalDateTime _update_at, int _repeatInterval, LocalDateTime _start_date, LocalDateTime _end_date, int _categoryId, int _userID) {
@@ -92,10 +93,19 @@ public class Expense_Recurring_Model {
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
     }
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
     public int getUserID() {
         return userID;
     }
     public void setUserID(int userID) {
         this.userID = userID;
     }
+
+
 }

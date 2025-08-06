@@ -23,6 +23,8 @@
         <activity android:name=".main.Activity.Category.EditCategoryActivity"/>
         <activity android:name=".main.Activity.Recurring.AddRecurringActivity"/>
         <activity android:name=".main.Activity.Tracking.AddTrackingActivity"/>
+        <activity android:name=".main.Activity.Recurring.EditRecurringActivity"/>
+        <activity android:name=".main.Activity.Tracking.EditTrackingActivity"/>
         <activity android:name=".main.Activity.SettingActivity"/>
 <!--        <activity android:name=".main.Activity.LoginActivity"/>-->
         <activity android:name=".main.Activity.RegisterActivity"/>

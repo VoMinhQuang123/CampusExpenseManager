@@ -1,6 +1,7 @@
 package com.example.campusexpensemanager.main.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Activity.Recurring.EditRecurringActivity;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Model.Expense_Recurring_Model;
 
@@ -67,9 +69,13 @@ public class Recurring_Adapter extends RecyclerView.Adapter<Recurring_Adapter.Re
                 public void onClick(View v) {
                     if (onClickListener != null) {
                         onClickListener.onClick(getAdapterPosition());
+
                     }
                 }
+
             });
+
+
         }
     }
 }
