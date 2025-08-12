@@ -17,7 +17,7 @@ import com.example.campusexpensemanager.main.Repository.User_Repository;
 
 public class RegisterActivity extends AppCompatActivity {
     EditText Name,Password, Email, Phone;
-    Button btnLogin, btnRegister;
+    Button btnBack, btnRegister;
 
     User_Repository repository;
 
@@ -31,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
         Email       = findViewById(R.id.email);
         Phone       = findViewById(R.id.phone);
         repository  = new User_Repository(RegisterActivity.this);
-        btnLogin    = findViewById(R.id.btnLogin);
+        btnBack    = findViewById(R.id.btnBack);
         btnRegister = findViewById(R.id.btnRegister);
 
         register();
@@ -73,6 +73,15 @@ public class RegisterActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 

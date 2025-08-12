@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -41,21 +43,23 @@ public class EditRecurringActivity extends AppCompatActivity {
     Button btnBack;
     EditText edtName, edtExpense, edtNote, edtStartDate, edtEndDate, edtRepeatDays;
     Spinner spinnerCategory;
-    List<Category_Expense_Model> categoryList;
-    ArrayAdapter<Category_Expense_Model> adapterCategory;
-    Map<String, Integer> categoryMap = new HashMap<>(); // Map tên -> ID
     Button btnEditRecurring;
-
+    ArrayList<Category_Expense_Model> categoryList;
+    Category_Expense_Repository repository_list;
     Expense_Reccuring_Repository repository;
+
     private int ID_RECURRING;
     private String NAME_RECURRING;
     private double MONEY_RECURRING;
     private String NOTE_RECURRING;
     private String START_DATE;
     private String END_DATE;
+
     private int REPEAT_DAYS;
     private int CATEGORY_ID;
     private int USER_ID;
+
+
 
 
 
@@ -76,19 +80,21 @@ public class EditRecurringActivity extends AppCompatActivity {
         btnEditRecurring = findViewById(R.id.btnEditRecurring);
         btnBack = findViewById(R.id.btnBack);
 
+
+        edtStartDate.setFocusable(false);
+        edtEndDate.setFocusable(false);
+
+        edtStartDate.setOnClickListener(v -> showDateTimePicker(edtStartDate));
+        edtEndDate.setOnClickListener(v -> showDateTimePicker(edtEndDate));
+
         SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
         int userId = sharedPref.getInt("userId", -1);
 
+        // Khởi tạo DB
+        repository_list = new Category_Expense_Repository(EditRecurringActivity.this);
+        categoryList = repository_list.getListBudget(userId);
 
         repository = new Expense_Reccuring_Repository(EditRecurringActivity.this);
-
-        Category_Expense_Repository categoryRepository = new Category_Expense_Repository(EditRecurringActivity.this);
-        categoryList = categoryRepository.getListBudget(userId);
-
-        adapterCategory = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryList);
-        adapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategory.setAdapter(adapterCategory);
-
         // Tạo danh sách tên từ categoryList
         ArrayList<String> categoryNames = new ArrayList<>();
         for (Category_Expense_Model category : categoryList) {
@@ -101,39 +107,45 @@ public class EditRecurringActivity extends AppCompatActivity {
                 categoryNames
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         spinnerCategory.setAdapter(adapter);
+        Intent intentRecurring;
+        Bundle bundleRecurring =getIntent().getExtras();
+        if (bundleRecurring != null) {
+            ID_RECURRING = bundleRecurring.getInt("EXP_RECURRING_ID", 0);
+            NAME_RECURRING = bundleRecurring.getString("EXP_RECURRING_NAME", null);
+            MONEY_RECURRING = bundleRecurring.getDouble("EXP_RECURRING_EXPENSE", 0.0);
+            NOTE_RECURRING = bundleRecurring.getString("EXP_RECURRING_NOTE", null);
+            START_DATE = bundleRecurring.getString("EXP_RECURRING_START_DATE", null);
+            END_DATE = bundleRecurring.getString("EXP_RECURRING_END_DATE", null);
+            REPEAT_DAYS = bundleRecurring.getInt("EXP_RECURRING_REPEAT_INTERVAL", 0);
+            CATEGORY_ID = bundleRecurring.getInt("EXP_RECURRING_CATEGORY_ID", 0);
 
 
-
-
-        // Lấy dữ liệu từ Bundle
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            ID_RECURRING = bundle.getInt("ID_RECURRING", 0);
-            NAME_RECURRING = bundle.getString("NAME_RECURRING", "");
-            MONEY_RECURRING = bundle.getDouble("MONEY_RECURRING", 0.0);
-            NOTE_RECURRING = bundle.getString("NOTE_RECURRING", "");
-            START_DATE = bundle.getString("START_DATE", "");
-            END_DATE = bundle.getString("END_DATE", "");
-            REPEAT_DAYS = bundle.getInt("REPEAT_DAYS", 0);
-            CATEGORY_ID = bundle.getInt("CATEGORY_ID", 0);
-            USER_ID = bundle.getInt("USER_ID", 0); // bạn cần chắc chắn bundle truyền user_id
-
+            // Gán dữ liệu vào EditText hoặc View tương ứng
             edtName.setText(NAME_RECURRING);
             edtExpense.setText(String.valueOf(MONEY_RECURRING));
             edtNote.setText(NOTE_RECURRING);
             edtStartDate.setText(START_DATE);
             edtEndDate.setText(END_DATE);
-            edtRepeatDays.setText(String.valueOf(REPEAT_DAYS));
 
-            // Thiết lập giá trị cho Spinner từ CATEGORY_ID
+            // Các field như CategoryID, UserID có thể hiển thị ở Spinner hoặc TextView
+
+            // --- Set Spinner Category ---
+            // Tìm vị trí category trong danh sách dựa vào CATEGORY_ID
+            int position = -1;
             for (int i = 0; i < categoryList.size(); i++) {
-                if (categoryList.get(i).getId() == CATEGORY_ID) {
-                    spinnerCategory.setSelection(i);
+                if (categoryList.get(i).getId() == CATEGORY_ID) { // getId() là ID category trong DB
+                    position = i;
                     break;
                 }
             }
+            if (position >= 0) {
+                spinnerCategory.setSelection(position);
+            }
         }
+
+
 
         btnEditRecurring.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -144,7 +156,7 @@ public class EditRecurringActivity extends AppCompatActivity {
                     String start = edtStartDate.getText().toString().trim();
                     String end = edtEndDate.getText().toString().trim();
                     String repeatStr = edtRepeatDays.getText().toString().trim();
-                    String selectedCategoryName = spinnerCategory.getSelectedItem().toString();
+
 
                     // Validate
                     if (TextUtils.isEmpty(name)) {
@@ -156,9 +168,31 @@ public class EditRecurringActivity extends AppCompatActivity {
                         return;
                     }
 
-                    double money = Double.parseDouble(moneyStr);
-                    int repeat = TextUtils.isEmpty(repeatStr) ? 0 : Integer.parseInt(repeatStr);
+                    double money ;
+                    try {
+                        money = Double.parseDouble(moneyStr);
+                        if (money <= 0) {
+                            edtExpense.setError("Must be greater than 0");
+                            return;
+                        }
+                    } catch (NumberFormatException e) {
+                        edtExpense.setError("Invalid number");
+                        return;
+                    }
 
+                    int repeat = 0;
+                    if (!TextUtils.isEmpty(repeatStr)) {
+                        try {
+                            repeat = Integer.parseInt(repeatStr);
+                            if (repeat < 0) {
+                                edtRepeatDays.setError("Must be >= 0");
+                                return;
+                            }
+                        } catch (NumberFormatException e) {
+                            edtRepeatDays.setError("Invalid number");
+                            return;
+                        }
+                    }
                     int selectedIndex = spinnerCategory.getSelectedItemPosition();
                     if (selectedIndex < 0 || selectedIndex >= categoryList.size()) {
                         Toast.makeText(EditRecurringActivity.this, "Vui lòng chọn Category", Toast.LENGTH_SHORT).show();
@@ -166,19 +200,26 @@ public class EditRecurringActivity extends AppCompatActivity {
                     }
 
                     int categoryId = categoryList.get(selectedIndex).getId();
-//                    int category = categoryMap.get(selectedCategoryName);
+//
+                    // Gán USER_ID từ SharedPreferences (bạn đã lấy userId ở onCreate)
+                    USER_ID = sharedPref.getInt("userId", -1);
+                    if (USER_ID == -1) {
+                        Toast.makeText(EditRecurringActivity.this, "User not logged in", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
                     long result = repository.editRecurring(
                             ID_RECURRING, name, money, note, repeat, start, end, categoryId, USER_ID
                     );
 
-                    if (result == -1) {
-                        Toast.makeText(EditRecurringActivity.this, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
-                        return;
-                    } else {
-                        Toast.makeText(EditRecurringActivity.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                    if (result != -1) {
+                        Toast.makeText(EditRecurringActivity.this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(EditRecurringActivity.this, RecurringFragment.class);
                         startActivity(intent);
+
+                    } else {
+                        Toast.makeText(EditRecurringActivity.this, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                        return;
                     }
                 }
             });
@@ -207,7 +248,7 @@ public class EditRecurringActivity extends AppCompatActivity {
             TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
                 date.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 date.set(Calendar.MINUTE, minute);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 editText.setText(sdf.format(date.getTime()));
             }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), true);
             timePickerDialog.show();

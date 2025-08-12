@@ -58,6 +58,7 @@ public class RecurringFragment extends Fragment {
 
 
 
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -125,20 +126,19 @@ public class RecurringFragment extends Fragment {
                 int repeatDays = selectedModel.getRepeatInterval();
                 int categoryId = selectedModel.getCategoryId();
                 String categoryName = selectedModel.getCategoryName(); // <-- Make sure your model has this getter
-
                 Intent intent = new Intent(getActivity(), EditRecurringActivity.class);
                 Bundle bundle = new Bundle();
 
-                bundle.putInt("ID_RECURRING", id);
-                bundle.putString("NAME_RECURRING", name);
-                bundle.putDouble("MONEY_RECURRING", expense);
-                bundle.putString("NOTE_RECURRING", note);
-                bundle.putString("START_DATE", startDate);
-                bundle.putString("END_DATE", endDate);
-                bundle.putInt("REPEAT_DAYS", repeatDays);
-                // bundle.putInt("CATEGORY_ID", categoryId); // Loại bỏ
-                bundle.putString("CATEGORY_NAME", categoryName); // <-- Thêm cái này để dùng cho spinnerCategory
-                bundle.putInt("USER_ID", userId); // Truyền user_id để load lại đúng danh sách category
+                bundle.putInt("EXP_RECURRING_ID", id);
+                bundle.putString("EXP_RECURRING_NAME", name);
+                bundle.putDouble("EXP_RECURRING_EXPENSE", expense);
+                bundle.putString("EXP_RECURRING_NOTE", note);
+                bundle.putString("EXP_RECURRING_START_DATE", startDate);
+                bundle.putString("EXP_RECURRING_END_DATE", endDate);
+                bundle.putInt("EXP_RECURRING_REPEAT_INTERVAL", repeatDays);
+                bundle.putInt("EXP_RECURRING_CATEGORY_ID", categoryId);
+
+
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
