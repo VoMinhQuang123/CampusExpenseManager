@@ -29,10 +29,10 @@ public class DashBroad_Adapter extends FragmentStateAdapter {
             return new ExpenseFragment();
         }
         if(position == 3){
-            return new OverviewFragment();
+            return new IncomeFragment();
         }
         if(position == 4){
-            return new IncomeFragment();
+            return new OverviewFragment();
         }
         else {
             return new HomeFragment();

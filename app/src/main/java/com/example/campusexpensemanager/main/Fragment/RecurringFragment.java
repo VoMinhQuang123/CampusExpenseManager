@@ -1,8 +1,10 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -14,20 +16,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.campusexpensemanager.R;
-import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
-import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
+
 import com.example.campusexpensemanager.main.Activity.Recurring.AddRecurringActivity;
 import com.example.campusexpensemanager.main.Activity.Recurring.EditRecurringActivity;
-import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
 import com.example.campusexpensemanager.main.Adapter.Recurring_Adapter;
-import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Model.Expense_Recurring_Model;
-import com.example.campusexpensemanager.main.Model.Expense_Tracking_Model;
-import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
 import com.example.campusexpensemanager.main.Repository.Expense_Reccuring_Repository;
-import com.example.campusexpensemanager.main.Repository.Expense_Tracking_Repository;
+import java.time.LocalDateTime;
+
 
 import java.util.ArrayList;
 
@@ -48,15 +47,12 @@ public class RecurringFragment extends Fragment {
     private String mParam2;
 
     TextView ViewExpense;
+    private Button btnCreate;
     private ArrayList<Expense_Recurring_Model> Models;
     private Recurring_Adapter budget;
     private Expense_Recurring_Model model;
     private Expense_Reccuring_Repository repository;
     private RecyclerView RCC;
-
-
-
-
 
     /**
      * Use this factory method to create a new instance of
@@ -88,61 +84,110 @@ public class RecurringFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        int userId = sharedPref.getInt("userId", -1);
 
-        View view =  inflater.inflate(R.layout.fragment_recurring, container, false);
-        Button btnCreate = view.findViewById(R.id.btnCeaterRecurring);
+        View view = inflater.inflate(R.layout.fragment_recurring, container, false);
+
+        // 1. Load user ID from shared preferences
+        int userId = loadUserId();
+
+        // 2. Initialize views and recycler view
+        initViews(view);
+
+        // 3. Load recurring expense data from repository
+        loadRecurringExpenses(userId);
+
+        // 4. Setup RecyclerView adapter and layout manager
+        setupRecyclerView();
+
+        // 5. Setup Create button listener to start AddRecurringActivity
+        setupCreateButtonListener();
+
+        // 6. Setup click listener for items in RecyclerView
+        setupItemClickListener(userId);
+
+        return view;
+    }
+
+    private int loadUserId() {
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        return sharedPref.getInt("userId", -1);
+    }
+    private void initViews(View view) {
+        btnCreate = view.findViewById(R.id.btnCeaterRecurring);
         RCC = view.findViewById(R.id.rvBudget);
         Models = new ArrayList<>();
         repository = new Expense_Reccuring_Repository(getActivity());
-
-        Models= repository.getListRecurring(userId);
-
+    }
+    private void loadRecurringExpenses(int userId) {
+        Models = repository.getListRecurring(userId);
+    }
+    private void setupRecyclerView() {
         budget = new Recurring_Adapter(Models, getContext());
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         RCC.setLayoutManager(manager);
         RCC.setAdapter(budget);
+    }
+    private void setupCreateButtonListener() {
+        btnCreate.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), AddRecurringActivity.class);
+            startActivity(intent);
+        });
+    }
+    private void setupItemClickListener(int userId) {
+        budget.setOnClickListener(position -> {
+            Expense_Recurring_Model selectedModel = Models.get(position);
+            Intent intent = new Intent(getActivity(), EditRecurringActivity.class);
+            Bundle bundle = new Bundle();
+            // Put data into bundle, format dates as yyyy-MM-dd for safety
+            bundle.putInt("ID_RECURRING", selectedModel.getId());
+            bundle.putString("NAME_RECURRING", selectedModel.getName());
+            bundle.putDouble("MONEY_RECURRING", selectedModel.getExpense());
+            bundle.putString("NOTE_RECURRING", selectedModel.getNote());
+            bundle.putString("START_DATE", formatLocalDateTime(selectedModel.getStart_date()));
+            bundle.putString("END_DATE", formatLocalDateTime(selectedModel.getEnd_date()));
+            bundle.putInt("REPEAT_DAYS", selectedModel.getRepeatInterval());
+            // bundle.putInt("CATEGORY_ID", selectedModel.getCategoryId()); // Removed as per your note
+            bundle.putString("CATEGORY_NAME", selectedModel.getCategoryName());
+            bundle.putInt("USER_ID", userId);
 
-        btnCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddRecurringActivity.class);
-                startActivity(intent);
-            }
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
+        budget.setOnDeleteListener(position -> {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận xóa")
+                    .setMessage("Bạn có chắc chắn muốn xóa mục này?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        Expense_Recurring_Model item = Models.get(position);
+                        long res = repository.deleteRecurringById(item.getId());
+                        if (res > 0) {
+                            Models.remove(position);
+                            budget.notifyItemRemoved(position);
+                            Toast.makeText(getContext(), "Xóa thành công", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
         });
 
-        budget.setOnClickListener(new Recurring_Adapter.OnClickListener() {
-            @Override
-            public void onClick(int position) {
-                Expense_Recurring_Model selectedModel = Models.get(position);
-                int id = selectedModel.getId();
-                String name = selectedModel.getName();
-                double expense = selectedModel.getExpense();
-                String note = selectedModel.getNote();
-                String startDate = selectedModel.getStart_date().toString(); // convert LocalDateTime to String
-                String endDate = selectedModel.getEnd_date().toString();
-                int repeatDays = selectedModel.getRepeatInterval();
-                int categoryId = selectedModel.getCategoryId();
-                String categoryName = selectedModel.getCategoryName(); // <-- Make sure your model has this getter
-
-                Intent intent = new Intent(getActivity(), EditRecurringActivity.class);
-                Bundle bundle = new Bundle();
-
-                bundle.putInt("ID_RECURRING", id);
-                bundle.putString("NAME_RECURRING", name);
-                bundle.putDouble("MONEY_RECURRING", expense);
-                bundle.putString("NOTE_RECURRING", note);
-                bundle.putString("START_DATE", startDate);
-                bundle.putString("END_DATE", endDate);
-                bundle.putInt("REPEAT_DAYS", repeatDays);
-                // bundle.putInt("CATEGORY_ID", categoryId); // Loại bỏ
-                bundle.putString("CATEGORY_NAME", categoryName); // <-- Thêm cái này để dùng cho spinnerCategory
-                bundle.putInt("USER_ID", userId); // Truyền user_id để load lại đúng danh sách category
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
-        return view;
+    }
+    // Helper method to format LocalDateTime to "yyyy-MM-dd" string
+    private String formatLocalDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) return "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return dateTime.toLocalDate().toString(); // Returns yyyy-MM-dd
+        }
+        return "";
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        int userId = loadUserId();  // Lấy lại userId
+        Models = repository.getListRecurring(userId);  // Load lại dữ liệu mới từ DB
+        if (budget != null) {
+            budget.updateData(Models);  // Cập nhật dữ liệu cho adapter và refresh UI
+        }
     }
 }

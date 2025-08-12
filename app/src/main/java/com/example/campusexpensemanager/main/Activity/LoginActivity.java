@@ -55,6 +55,8 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putInt("userId", use.getId());
+                    editor.putString("username", name);  // lưu username
+                    editor.putString("password", pass);  // lưu password
                     editor.apply();
 
                     Intent intent = new Intent(LoginActivity.this, DashBroadActivity.class);

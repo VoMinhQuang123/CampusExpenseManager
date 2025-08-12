@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 
 import androidx.annotation.Nullable;
 
@@ -66,5 +67,25 @@ public class User_Repository extends SQLite_Campus {
         }
         return user;
     }
+    public long updateUserInfo(int userId, String password, String email, String phone) {
+        @SuppressLint({"NewApi", "LocalSuppress"}) DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint({"NewApi", "LocalSuppress"}) ZonedDateTime zone = ZonedDateTime.now();
+        String CurrentDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CurrentDate = dtf.format(zone);
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(COL_User_Password, password);
+        values.put(COL_User_Email, email);
+        values.put(COL_User_Phone, phone);
+        values.put(COL_Update_at, CurrentDate);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rows = db.update(DB_table_user, values, COl_User_ID + "=?", new String[]{String.valueOf(userId)});
+        db.close();
+        return rows;
+    }
+
 }
 

@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         register();
     }
-    private void register(){
+    private void register() {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,29 +45,70 @@ public class RegisterActivity extends AppCompatActivity {
                 String email = Email.getText().toString().trim();
                 String phone = Phone.getText().toString().trim();
 
-                if(TextUtils.isEmpty(user)){
-                    Name.setError("x");
+                // Kiểm tra username
+                if (TextUtils.isEmpty(user)) {
+                    Name.setError("Tên đăng nhập không được để trống");
+                    Name.requestFocus();
                     return;
                 }
-                if(TextUtils.isEmpty(pass)){
-                    Password.setError("y");
-                    return;
-                }
-                if(TextUtils.isEmpty(email)){
-                    Name.setError("z");
-                    return;
-                }
-                if(TextUtils.isEmpty(phone)){
-                    Password.setError("b");
+                if (user.length() < 8) {
+                    Name.setError("Tên đăng nhập phải có ít nhất 8 ký tự");
+                    Name.requestFocus();
                     return;
                 }
 
-                long insert = repository.saveUser(user, pass, email, phone);
-                if(insert == -1){
-                    Toast.makeText(RegisterActivity.this, "Save fail", Toast.LENGTH_SHORT).show();
+                // Kiểm tra password
+                if (TextUtils.isEmpty(pass)) {
+                    Password.setError("Mật khẩu không được để trống");
+                    Password.requestFocus();
+                    return;
                 }
-                else {
-                    Toast.makeText(RegisterActivity.this, "Save success", Toast.LENGTH_SHORT).show();
+                if (pass.length() < 8) {
+                    Password.setError("Mật khẩu phải có ít nhất 8 ký tự");
+                    Password.requestFocus();
+                    return;
+                }
+                if (!pass.matches(".*[a-zA-Z].*")) {
+                    Password.setError("Mật khẩu phải có ít nhất một chữ cái");
+                    Password.requestFocus();
+                    return;
+                }
+                if (!pass.matches(".*[!@#$%^&*].*")) {
+                    Password.setError("Mật khẩu phải có ít nhất một ký tự đặc biệt (!@#$%^&*)");
+                    Password.requestFocus();
+                    return;
+                }
+
+                // Kiểm tra email
+                if (TextUtils.isEmpty(email)) {
+                    Email.setError("Email không được để trống");
+                    Email.requestFocus();
+                    return;
+                }
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    Email.setError("Email không hợp lệ");
+                    Email.requestFocus();
+                    return;
+                }
+
+                // Kiểm tra phone (có thể cho phép trống nếu bạn muốn)
+                if (TextUtils.isEmpty(phone)) {
+                    Phone.setError("Số điện thoại không được để trống");
+                    Phone.requestFocus();
+                    return;
+                }
+                if (!phone.matches("\\d{10}")) {
+                    Phone.setError("Số điện thoại phải gồm 10 chữ số");
+                    Phone.requestFocus();
+                    return;
+                }
+
+                // Nếu qua hết các bước kiểm tra thì lưu user
+                long insert = repository.saveUser(user, pass, email, phone);
+                if (insert == -1) {
+                    Toast.makeText(RegisterActivity.this, "Lưu thất bại", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     startActivity(intent);
@@ -75,6 +116,6 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
+
 }
