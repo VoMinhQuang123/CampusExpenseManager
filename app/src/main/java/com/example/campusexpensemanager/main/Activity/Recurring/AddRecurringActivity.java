@@ -38,7 +38,7 @@ public class AddRecurringActivity extends AppCompatActivity {
     Button btnAddRecurring;
     ArrayList<Category_Expense_Model> categoryList;
     Category_Expense_Repository repository_list;
-    Expense_Tracking_Repository repository;
+    Expense_Reccuring_Repository repository;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +67,7 @@ public class AddRecurringActivity extends AppCompatActivity {
         repository_list = new Category_Expense_Repository(AddRecurringActivity.this);
         categoryList = repository_list.getListBudget(userId);
 
-        repository = new Expense_Tracking_Repository(AddRecurringActivity.this);
+        repository = new Expense_Reccuring_Repository(AddRecurringActivity.this);
         // Tạo danh sách tên từ categoryList
         ArrayList<String> categoryNames = new ArrayList<>();
         for (Category_Expense_Model category : categoryList) {
@@ -146,6 +146,7 @@ public class AddRecurringActivity extends AppCompatActivity {
                 }
 
                 int categoryId = categoryList.get(selectedIndex).getId();
+
                 Expense_Reccuring_Repository recurringRepository = new Expense_Reccuring_Repository(AddRecurringActivity.this);
                 long result = recurringRepository.addNewRecurring(
                         name,
@@ -179,7 +180,7 @@ public class AddRecurringActivity extends AppCompatActivity {
             TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
                 date.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 date.set(Calendar.MINUTE, minute);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 editText.setText(sdf.format(date.getTime()));
             }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), true);
             timePickerDialog.show();

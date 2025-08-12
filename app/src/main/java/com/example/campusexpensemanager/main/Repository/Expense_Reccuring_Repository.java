@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
@@ -17,8 +18,12 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Expense_Reccuring_Repository extends SQLite_Campus {
+    private SQLiteOpenHelper dbHelper;
+
     public Expense_Reccuring_Repository(@Nullable Context context) {
         super(context);
     }
@@ -97,23 +102,38 @@ public class Expense_Reccuring_Repository extends SQLite_Campus {
         db.close();
         return insert;
     }
-    public long editBudget(int id, String name, int expensive, String description){
-        @SuppressLint({"NewApi", "LocalSuppress"}) DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        @SuppressLint({"NewApi", "LocalSuppress"}) ZonedDateTime zone = ZonedDateTime.now();
+    public long editRecurring(int id, String name, double expense, String note,
+                              int repeatDays, String start, String end,
+                              int categoryId, int userId) {
+        @SuppressLint({"NewApi", "LocalSuppress"})
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint({"NewApi", "LocalSuppress"})
+        ZonedDateTime zone = ZonedDateTime.now();
+        @SuppressLint({"NewApi", "LocalSuppress"})
+        String currentDate = dtf.format(zone);
 
-        @SuppressLint({"NewApi", "LocalSuppress"}) String CurrentDate = dtf.format(zone);
-
-        ContentValues values = new ContentValues();
-        values.put(SQLite_Campus.COL_BUDGET_NAME, name);
-        values.put(SQLite_Campus.COL_BUDGET_EXPENSIVE, expensive);
-        values.put(SQLite_Campus.COL_BUDGET_DESCRIPTION, description);
-        values.put(SQLite_Campus.COL_Update_at, CurrentDate);
         SQLiteDatabase db = this.getWritableDatabase();
-        String condition = SQLite_Campus.COL_BUDGET_ID + "=?";
-        String[] params = { String.valueOf(id)};
-        long result = db.update(SQLite_Campus.DB_TABLE_BUDGET, values, condition, params);
+        ContentValues values = new ContentValues();
+
+        values.put(SQLite_Campus.COL_EXP_RECURRING_NAME, name);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_EXPENSE, expense);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_NOTE, note);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_REPEAT_INTERVAL, repeatDays);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_START_DATE, start);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_END_DATE, end);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_CATEGORY_ID, categoryId);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_USER_ID, userId);
+        values.put(SQLite_Campus.COL_EXP_RECURRING_UPDATED_AT, currentDate);
+
+        String condition = SQLite_Campus.COL_EXP_RECURRING_ID + " = ? ";
+        String[] args = { String.valueOf(id) };
+
+        long result = db.update(SQLite_Campus.DB_TABLE_EXPENSE_RECURRING, values, condition, args);
         db.close();
         return result;
     }
+
+
+
 }

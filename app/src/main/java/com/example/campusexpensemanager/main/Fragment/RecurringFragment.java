@@ -17,7 +17,9 @@ import android.widget.TextView;
 
 import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
+import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
 import com.example.campusexpensemanager.main.Activity.Recurring.AddRecurringActivity;
+import com.example.campusexpensemanager.main.Activity.Recurring.EditRecurringActivity;
 import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
 import com.example.campusexpensemanager.main.Adapter.Recurring_Adapter;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
@@ -54,9 +56,8 @@ public class RecurringFragment extends Fragment {
 
 
 
-    public RecurringFragment() {
-        // Required empty public constructor
-    }
+
+
 
     /**
      * Use this factory method to create a new instance of
@@ -112,9 +113,36 @@ public class RecurringFragment extends Fragment {
             }
         });
 
+        budget.setOnClickListener(new Recurring_Adapter.OnClickListener() {
+            @Override
+            public void onClick(int position) {
+                Expense_Recurring_Model selectedModel = Models.get(position);
+                int id = selectedModel.getId();
+                String name = selectedModel.getName();
+                double expense = selectedModel.getExpense();
+                String note = selectedModel.getNote();
+                String startDate = selectedModel.getStart_date().toString(); // convert LocalDateTime to String
+                String endDate = selectedModel.getEnd_date().toString();
+                int repeatDays = selectedModel.getRepeatInterval();
+                int categoryId = selectedModel.getCategoryId();
+                String categoryName = selectedModel.getCategoryName(); // <-- Make sure your model has this getter
+                Intent intent = new Intent(getActivity(), EditRecurringActivity.class);
+                Bundle bundle = new Bundle();
+
+                bundle.putInt("EXP_RECURRING_ID", id);
+                bundle.putString("EXP_RECURRING_NAME", name);
+                bundle.putDouble("EXP_RECURRING_EXPENSE", expense);
+                bundle.putString("EXP_RECURRING_NOTE", note);
+                bundle.putString("EXP_RECURRING_START_DATE", startDate);
+                bundle.putString("EXP_RECURRING_END_DATE", endDate);
+                bundle.putInt("EXP_RECURRING_REPEAT_INTERVAL", repeatDays);
+                bundle.putInt("EXP_RECURRING_CATEGORY_ID", categoryId);
 
 
-
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 }

@@ -17,7 +17,9 @@ import android.widget.TextView;
 
 import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Activity.Recurring.AddRecurringActivity;
+import com.example.campusexpensemanager.main.Activity.Recurring.EditRecurringActivity;
 import com.example.campusexpensemanager.main.Activity.Tracking.AddTrackingActivity;
+import com.example.campusexpensemanager.main.Activity.Tracking.EditTrackingActivity;
 import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
 import com.example.campusexpensemanager.main.Adapter.Recurring_Adapter;
 import com.example.campusexpensemanager.main.Adapter.Tracking_Adapter;
@@ -110,6 +112,15 @@ public class TrackingFragment extends Fragment {
 
 
 
+        budget.setOnClickListener(new Tracking_Adapter.OnClickListener() {
+            @Override
+            public void onClick(int position) {
+                // use intent + bundle sang edit
+                // Toast.makeText(getActivity(), name, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), EditTrackingActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
         return view;

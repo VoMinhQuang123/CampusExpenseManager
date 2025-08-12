@@ -9,79 +9,71 @@
     android:layout_margin="5dp"
     tools:ignore="ExtraText">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ăn đấm không?"
-        android:textColor="#EF0A0A"
-        android:textSize="22sp"
-        android:layout_gravity="center_horizontal"/>
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
-        android:layout_height="300dp"
+        android:layout_height="150dp"
         android:layout_gravity="center_horizontal"
-        app:srcCompat="@drawable/logobtec"
+        app:srcCompat="@drawable/budget524"
         tools:ignore="ExtraText" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"/>
     <EditText
         android:id="@+id/inputName"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#B65959"
+        android:layout_height="60dp"
+        android:background="@drawable/edittext_border"
         android:hint="Enter Your Name:"
         android:paddingStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         />
     <EditText
         android:id="@+id/inputPassword"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#B65959"
+        android:layout_height="60dp"
+        android:background="@drawable/edittext_border"
         android:hint="Enter Your Password:"
         android:paddingStart="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:inputType="textPassword"
         />
 
     <EditText
         android:id="@+id/email"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:autofillHints="false"
-        android:background="#5FB0D5"
+        android:background="@drawable/edittext_border"
         android:hint="Email"
         android:paddingStart="10dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:inputType="textEmailAddress"/>
 
     <EditText
         android:id="@+id/phone"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:autofillHints="false"
-        android:background="#E7A1A1"
+        android:background="@drawable/edittext_border"
         android:hint="Phone"
         android:paddingStart="10dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:inputType="textPhonetic"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="#FF0606"
-            android:text="Login"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"/>
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="50dp"
+        android:padding="10dp">
 
         <Button
             android:id="@+id/btnRegister"
@@ -89,33 +81,20 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="#03A9F4"
-            android:text="Registr"
+            android:text="SignUp"
             android:layout_marginTop="5dp"/>
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
+        <Button
+            android:id="@+id/btnBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:layout_weight="3"
-            android:text="Forgot password?"
-            android:textColor="#EF0A0A"
+            android:layout_weight="1"
+            android:backgroundTint="#03A9F4"
+            android:text="Back"
             android:layout_marginTop="5dp"
-            android:gravity="center"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:text="Do you want create new account?"
-            android:textColor="#EF0A0A"
-            android:layout_marginTop="5dp"
-            android:gravity="center"/>
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
+
+
 
 </LinearLayout>
