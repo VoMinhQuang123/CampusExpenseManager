@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
 import com.example.campusexpensemanager.main.Fragment.ExpenseFragment;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
@@ -123,8 +125,7 @@ public class AddRecurringActivity extends AppCompatActivity {
     /** Setup button click listeners */
     private void setupListeners() {
         btnBack.setOnClickListener(v -> {
-            // Navigate back to ExpenseFragment
-            startActivity(new Intent(AddRecurringActivity.this, ExpenseFragment.class));
+
             finish();
         });
         btnAddRecurring.setOnClickListener(v -> {
@@ -214,8 +215,8 @@ public class AddRecurringActivity extends AppCompatActivity {
         int repeatInterval = Integer.parseInt(edtRepeatDays.getText().toString().trim());
 
         int selectedIndex = spinnerCategory.getSelectedItemPosition();
-        int categoryId = categoryList.get(selectedIndex).getId();
 
+        int categoryId = categoryList.get(selectedIndex).getId();
         long result = recurringRepository.addNewRecurring(
                 name,
                 expense,
@@ -227,12 +228,10 @@ public class AddRecurringActivity extends AppCompatActivity {
                 userId
         );
 
-        if (result != -1) {
-            Toast.makeText(this, "Thêm thành công", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(AddRecurringActivity.this, ExpenseFragment.class));
-            finish();
-        } else {
-            Toast.makeText(this, "Thêm thất bại", Toast.LENGTH_SHORT).show();
+        if(result != -1){
+            Toast.makeText(AddRecurringActivity.this, "create success", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK); // Báo cho Activity trước là đã thêm thành công
+            finish(); // Đóng AddCategoryActivity
         }
     }
 }

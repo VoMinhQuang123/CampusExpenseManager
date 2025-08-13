@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Activity.Recurring.AddRecurringActivity;
 import com.example.campusexpensemanager.main.Fragment.ExpenseFragment;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
@@ -74,8 +75,6 @@ public class EditTrackingActivity extends AppCompatActivity {
 
         // Nút Back quay lại fragment ExpenseFragment
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(EditTrackingActivity.this, ExpenseFragment.class);
-            startActivity(intent);
             finish();
         });
     }
@@ -154,11 +153,10 @@ public class EditTrackingActivity extends AppCompatActivity {
         );
         Log.d("EditTracking", "Update result = " + result);
 
-        if (result == -1) {
-            Toast.makeText(this, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-            finish();
+        if(result != -1){
+            Toast.makeText(EditTrackingActivity.this, "create success", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK); // Báo cho Activity trước là đã thêm thành công
+            finish(); // Đóng AddCategoryActivity
         }
     }
 }

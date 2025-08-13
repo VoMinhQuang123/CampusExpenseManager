@@ -137,28 +137,4 @@ public class Expense_Tracking_Repository extends SQLite_Campus {
     }
 
 
-    @SuppressLint("Range")
-    public Map<Integer, Double> getTrackingExpenseByCategory(int userId) {
-        Map<Integer, Double> map = new HashMap<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(
-                "SELECT " + SQLite_Campus.COL_EXP_TRACKING_CATEGORY_ID + ", " +
-                        "SUM(" + SQLite_Campus.COL_EXP_TRACKING_EXPENSE + ") as Total " +
-                        "FROM " + SQLite_Campus.DB_TABLE_EXPENSE_TRACKING +
-                        " WHERE " + SQLite_Campus.COL_EXP_TRACKING_USER_ID + " = ?" +
-                        " GROUP BY " + SQLite_Campus.COL_EXP_TRACKING_CATEGORY_ID,
-                new String[]{String.valueOf(userId)}
-        );
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                int categoryId = cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_CATEGORY_ID));
-                double total = cursor.getDouble(cursor.getColumnIndex("Total"));
-                map.put(categoryId, total);
-            }
-            cursor.close();
-        }
-        db.close();
-        return map;
-    }
 }

@@ -166,6 +166,20 @@ public class CategoryFragment extends Fragment {
 
         return view;
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPref.getInt("userId", -1);
+
+        budgetModels.clear();
+        budgetModels.addAll(repository.getListBudget(userId));
+        budget.notifyDataSetChanged();
+
+        int total = repository.getTotalExpense(userId);
+        ViewExpense.setText("Amounts: " + total + " VNĐ");
+    }
+
 
 
 }

@@ -107,8 +107,9 @@ public class TrackingFragment extends Fragment {
                         Expense_Tracking_Model item = Models.get(position);
                         long res = repository.deleteTrackingById(item.getId());
                         if (res > 0) {
-                            Models.remove(position);
-                            budget.notifyItemRemoved(position);
+                            // Sau khi xóa thành công, load lại dữ liệu mới từ DB
+                            Models = repository.getListTracking(userId);
+                            budget.updateData(Models); // Cập nhật adapter với data mới
                             Toast.makeText(getContext(), "Xóa thành công", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(), "Xóa thất bại", Toast.LENGTH_SHORT).show();

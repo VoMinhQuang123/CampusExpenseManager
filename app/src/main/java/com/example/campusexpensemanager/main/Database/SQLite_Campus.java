@@ -10,7 +10,7 @@ public class SQLite_Campus extends SQLiteOpenHelper {
 
     private static final String DB_Name = "Campus_Expensive";
 
-    private static final int DB_version = 5;
+    private static final int DB_version = 10;
 
     //User table
     protected static final String DB_table_user = "User";
@@ -88,10 +88,7 @@ public class SQLite_Campus extends SQLiteOpenHelper {
         db.execSQL(CreateBudgetTable);
 
         // Chèn mặc định category Other với id = 1
-        String insertDefaultCategory = "INSERT INTO " + DB_TABLE_BUDGET +
-                " (" + COL_BUDGET_ID + ", " + COL_BUDGET_NAME + ", " + COL_BUDGET_EXPENSIVE + ", " + COL_BUDGET_DESCRIPTION + ", " + COL_Create_at + ", " + COL_Update_at + ", " + COL_BUDGET_USERID + ") " +
-                "VALUES (1, 'Other', 0, 'Default category', datetime('now'), datetime('now'), 0);";
-        db.execSQL(insertDefaultCategory);
+
 
         // Tạo bảng Expense Tracking
         String CreateExpenseTrackingTable = "CREATE TABLE " + DB_TABLE_EXPENSE_TRACKING + " ("
@@ -125,6 +122,10 @@ public class SQLite_Campus extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + COL_EXP_RECURRING_CATEGORY_ID + ") REFERENCES " + DB_TABLE_BUDGET + "(" + COL_BUDGET_ID + ")"
                 + ")";
         db.execSQL(CreateExpenseRecurringTable);
+        String insertDefaultCategory = "INSERT INTO " + DB_TABLE_BUDGET +
+                " (" + COL_BUDGET_ID + ", " + COL_BUDGET_NAME + ", " + COL_BUDGET_EXPENSIVE + ", " + COL_BUDGET_DESCRIPTION + ", " + COL_Create_at + ", " + COL_Update_at + ", " + COL_BUDGET_USERID + ") " +
+                "VALUES (1, 'Other', 0, 'Default category', datetime('now'), datetime('now'), 0);";
+        db.execSQL(insertDefaultCategory);
     }
 
     @Override

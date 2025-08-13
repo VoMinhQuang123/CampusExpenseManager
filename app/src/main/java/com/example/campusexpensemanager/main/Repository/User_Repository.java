@@ -40,52 +40,84 @@ public class User_Repository extends SQLite_Campus {
     }
 
     @SuppressLint("Range")
-    public  User_Model getInforUserByUsername(String username, String password){
+    public User_Model getInforUserByUsername(String username, String password) {
         User_Model user = new User_Model();
-        try{
+        try {
             SQLiteDatabase db = this.getReadableDatabase();
-            String[] col = {SQLite_Campus.COl_User_ID,
+            String[] col = {
+                    SQLite_Campus.COl_User_ID,
                     SQLite_Campus.COL_User_USERNAME,
+                    SQLite_Campus.COL_User_Password,  // thêm dòng này
                     SQLite_Campus.COL_User_Email,
                     SQLite_Campus.COL_User_Phone
             };
-            String condition = SQLite_Campus.COL_User_USERNAME + " = ? And " + SQLite_Campus.COL_User_Password + " = ? " ;
-            String[] params = { username, password};
+            String condition = SQLite_Campus.COL_User_USERNAME + " = ? And " + SQLite_Campus.COL_User_Password + " = ? ";
+            String[] params = { username, password };
             Cursor cursor = db.query(SQLite_Campus.DB_table_user, col, condition, params, null, null, null);
-            if (cursor.getCount()>0){
+            if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 user.setId(cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COl_User_ID)));
                 user.setUsername(cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_User_USERNAME)));
+                user.setPassword(cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_User_Password)));  // set password ở đây
                 user.setEmail(cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_User_Email)));
                 user.setPhone(cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_User_Phone)));
             }
             cursor.close();
             db.close();
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
         return user;
     }
-    public long updateUserInfo(int userId, String password, String email, String phone) {
-        @SuppressLint({"NewApi", "LocalSuppress"}) DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        @SuppressLint({"NewApi", "LocalSuppress"}) ZonedDateTime zone = ZonedDateTime.now();
-        String CurrentDate = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CurrentDate = dtf.format(zone);
+
+    public long updateUserInfo(int userId, String username, String password, String email, String phone) {
+        ContentValues values = new ContentValues();
+
+        if (username != null) {
+            values.put(COL_User_USERNAME, username);
+        }
+        if (password != null && !password.isEmpty()) {
+            values.put(COL_User_Password, password);
+        }
+        if (email != null) {
+            values.put(COL_User_Email, email);
+        }
+        if (phone != null) {
+            values.put(COL_User_Phone, phone);
         }
 
-        ContentValues values = new ContentValues();
-        values.put(COL_User_Password, password);
-        values.put(COL_User_Email, email);
-        values.put(COL_User_Phone, phone);
-        values.put(COL_Update_at, CurrentDate);
+        // Thêm ngày update
+        @SuppressLint({"NewApi", "LocalSuppress"})
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint({"NewApi", "LocalSuppress"})
+        ZonedDateTime zone = ZonedDateTime.now();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String currentDate = dtf.format(zone);
+            values.put(COL_Update_at, currentDate);
+        }
 
         SQLiteDatabase db = this.getWritableDatabase();
         int rows = db.update(DB_table_user, values, COl_User_ID + "=?", new String[]{String.valueOf(userId)});
         db.close();
         return rows;
     }
+
+    public boolean isUsernameExists(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM User WHERE username = ?", new String[]{username});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
+    public boolean isEmailExists(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM User WHERE email = ?", new String[]{email});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
 
 }
 

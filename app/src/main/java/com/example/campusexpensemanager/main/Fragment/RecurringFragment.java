@@ -146,7 +146,7 @@ public class RecurringFragment extends Fragment {
             bundle.putString("START_DATE", formatLocalDateTime(selectedModel.getStart_date()));
             bundle.putString("END_DATE", formatLocalDateTime(selectedModel.getEnd_date()));
             bundle.putInt("REPEAT_DAYS", selectedModel.getRepeatInterval());
-            // bundle.putInt("CATEGORY_ID", selectedModel.getCategoryId()); // Removed as per your note
+             bundle.putInt("CATEGORY_ID", selectedModel.getCategoryId()); // Removed as per your note
             bundle.putString("CATEGORY_NAME", selectedModel.getCategoryName());
             bundle.putInt("USER_ID", userId);
 
@@ -161,8 +161,9 @@ public class RecurringFragment extends Fragment {
                         Expense_Recurring_Model item = Models.get(position);
                         long res = repository.deleteRecurringById(item.getId());
                         if (res > 0) {
-                            Models.remove(position);
-                            budget.notifyItemRemoved(position);
+                            // Sau khi xóa thành công, load lại dữ liệu mới từ DB
+                            Models = repository.getListRecurring(userId);
+                            budget.updateData(Models); // Cập nhật adapter với data mới
                             Toast.makeText(getContext(), "Xóa thành công", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(), "Xóa thất bại", Toast.LENGTH_SHORT).show();

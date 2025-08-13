@@ -11,7 +11,9 @@ public class Expense_Tracking_Model {
     private LocalDateTime update_at;
     private int categoryId;
     private int userID;
+    public Expense_Tracking_Model(){
 
+    }
     public Expense_Tracking_Model(int _id, String _name, double _expense, String _note,
                                   LocalDateTime _create_at, LocalDateTime _update_at,
                                   int _categoryId, int _userID) {

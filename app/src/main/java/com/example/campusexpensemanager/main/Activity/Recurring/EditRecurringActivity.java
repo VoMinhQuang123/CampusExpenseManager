@@ -46,7 +46,6 @@ public class EditRecurringActivity extends AppCompatActivity {
     ArrayAdapter<Category_Expense_Model> adapterCategory;
     Map<String, Integer> categoryMap = new HashMap<>(); // Map tên -> ID
     Button btnEditRecurring;
-
     Expense_Reccuring_Repository repository;
     private int ID_RECURRING;
     private String NAME_RECURRING;
@@ -234,10 +233,11 @@ public class EditRecurringActivity extends AppCompatActivity {
         Double money = moneyStr != null ? Double.parseDouble(moneyStr) : null;
         Integer repeat = repeatStr != null ? Integer.parseInt(repeatStr) : null;
 
+        Integer categoryIdToUpdate = categoryList.get(spinnerCategory.getSelectedItemPosition()).getId();
 
-        int selectedIndex = spinnerCategory.getSelectedItemPosition();
-        int categoryId = categoryList.get(selectedIndex).getId();
-
+        if (categoryIdToUpdate == CATEGORY_ID) {
+            categoryIdToUpdate = null;  // không update category
+        }
         long result = repository.editRecurring(
                 ID_RECURRING,
                 name,
@@ -246,16 +246,15 @@ public class EditRecurringActivity extends AppCompatActivity {
                 repeat,
                 startInput,
                 endInput,
-                categoryId,
+                categoryIdToUpdate,
                 USER_ID
         );
-        Log.d("EditRecurring", "Update result = " + result);
 
-        if (result == -1) {
-            Toast.makeText(this, "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
-            finish();
+
+        if(result != -1){
+            Toast.makeText(EditRecurringActivity.this, "create success", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK); // Báo cho Activity trước là đã thêm thành công
+            finish(); // Đóng AddCategoryActivity
         }
     }
 

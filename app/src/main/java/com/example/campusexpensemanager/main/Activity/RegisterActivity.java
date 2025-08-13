@@ -1,7 +1,6 @@
 package com.example.campusexpensemanager.main.Activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,11 +12,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Fragment.HomeFragment;
 import com.example.campusexpensemanager.main.Repository.User_Repository;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class RegisterActivity extends AppCompatActivity {
-    EditText Name,Password, Email, Phone;
-    Button btnLogin, btnRegister;
+    EditText Name, Password, Email, Phone;
+    Button btnback, btnRegister;
 
     User_Repository repository;
 
@@ -31,11 +34,18 @@ public class RegisterActivity extends AppCompatActivity {
         Email       = findViewById(R.id.email);
         Phone       = findViewById(R.id.phone);
         repository  = new User_Repository(RegisterActivity.this);
-        btnLogin    = findViewById(R.id.btnLogin);
+        btnback    = findViewById(R.id.btnBack);
         btnRegister = findViewById(R.id.btnRegister);
 
+        btnback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            }
+        });
         register();
     }
+
     private void register() {
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,7 +55,12 @@ public class RegisterActivity extends AppCompatActivity {
                 String email = Email.getText().toString().trim();
                 String phone = Phone.getText().toString().trim();
 
-                // Kiểm tra username
+                if (repository.isUsernameExists(user)) {
+                    Name.setError("Tên đăng nhập đã tồn tại");
+                    Name.requestFocus();
+                    return;
+                }
+                // Kiểm tra các trường dữ liệu
                 if (TextUtils.isEmpty(user)) {
                     Name.setError("Tên đăng nhập không được để trống");
                     Name.requestFocus();
@@ -56,8 +71,6 @@ public class RegisterActivity extends AppCompatActivity {
                     Name.requestFocus();
                     return;
                 }
-
-                // Kiểm tra password
                 if (TextUtils.isEmpty(pass)) {
                     Password.setError("Mật khẩu không được để trống");
                     Password.requestFocus();
@@ -78,8 +91,6 @@ public class RegisterActivity extends AppCompatActivity {
                     Password.requestFocus();
                     return;
                 }
-
-                // Kiểm tra email
                 if (TextUtils.isEmpty(email)) {
                     Email.setError("Email không được để trống");
                     Email.requestFocus();
@@ -90,8 +101,11 @@ public class RegisterActivity extends AppCompatActivity {
                     Email.requestFocus();
                     return;
                 }
-
-                // Kiểm tra phone (có thể cho phép trống nếu bạn muốn)
+                if (repository.isEmailExists(email)) {
+                    Email.setError("Email đã được sử dụng");
+                    Email.requestFocus();
+                    return;
+                }
                 if (TextUtils.isEmpty(phone)) {
                     Phone.setError("Số điện thoại không được để trống");
                     Phone.requestFocus();
@@ -103,8 +117,10 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Nếu qua hết các bước kiểm tra thì lưu user
-                long insert = repository.saveUser(user, pass, email, phone);
+                // Hash mật khẩu trước khi lưu
+                String hashedPass = hashPassword(pass);
+
+                long insert = repository.saveUser(user, hashedPass, email, phone);
                 if (insert == -1) {
                     Toast.makeText(RegisterActivity.this, "Lưu thất bại", Toast.LENGTH_SHORT).show();
                 } else {
@@ -117,5 +133,18 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
-
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : bytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

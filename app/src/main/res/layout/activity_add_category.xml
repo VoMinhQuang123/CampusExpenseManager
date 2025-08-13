@@ -18,29 +18,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
+        android:autofillHints="false"
         android:hint="Enter name budget"
         android:inputType="text"
-        android:autofillHints="false"
-        />
+        android:minHeight="48dp" />
 
     <EditText
         android:id="@+id/edtBudgetMoney"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
+        android:autofillHints="false"
         android:hint="Enter expensive budget"
         android:inputType="numberDecimal"
-        android:autofillHints="false"
-        />
+        android:minHeight="48dp" />
+
     <EditText
         android:id="@+id/edtDescritions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
+        android:autofillHints="false"
         android:hint="Descritions"
         android:inputType="textMultiLine"
-        android:autofillHints="false"
-        />
+        android:minHeight="48dp" />
 
     <Button
         android:id="@+id/btnSaveBudget"
