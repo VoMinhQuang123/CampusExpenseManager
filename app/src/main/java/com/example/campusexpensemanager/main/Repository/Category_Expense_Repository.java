@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class Category_Expense_Repository extends SQLite_Campus {
     public Category_Expense_Repository(@Nullable Context context) {
+
         super(context);
     }
     @SuppressLint("Range")
@@ -108,6 +109,15 @@ public class Category_Expense_Repository extends SQLite_Campus {
         db.close();
         return result;
     }
+    public long deleteBudget(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String condition = SQLite_Campus.COL_BUDGET_ID + "=?";
+        String[] params = { String.valueOf(id) };
+        long result = db.delete(SQLite_Campus.DB_TABLE_BUDGET, condition, params);
+        db.close();
+        return result;
+    }
+
     public int getTotalExpense(int userId) {
         int total = 0;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -151,7 +161,23 @@ public class Category_Expense_Repository extends SQLite_Campus {
         db.close();
         return map;
     }
-    // Lấy danh sách các khoản chi tiêu theo categoryId
+
+    public void updateTrackingCategoryToOther(int oldCategoryId) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_EXP_TRACKING_CATEGORY_ID, 1); // set sang category Other
+        db.update(DB_TABLE_EXPENSE_TRACKING, values, COL_EXP_TRACKING_CATEGORY_ID + "=?", new String[]{String.valueOf(oldCategoryId)});
+        db.close();
+    }
+
+    public void updateRecurringCategoryToOther(int oldCategoryId) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_EXP_RECURRING_CATEGORY_ID, 1); // set sang category Other
+        db.update(DB_TABLE_EXPENSE_RECURRING, values, COL_EXP_RECURRING_CATEGORY_ID + "=?", new String[]{String.valueOf(oldCategoryId)});
+        db.close();
+    }
+
     @SuppressLint("Range")
     public ArrayList<Category_Expense_Model> getExpensesByCategoryId(int categoryId) {
         ArrayList<Category_Expense_Model> list = new ArrayList<>();
@@ -203,5 +229,6 @@ public class Category_Expense_Repository extends SQLite_Campus {
         db.close();
         return list;
     }
+
 
 }

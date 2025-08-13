@@ -12,14 +12,42 @@ import androidx.annotation.Nullable;
 import com.example.campusexpensemanager.main.Database.SQLite_Campus;
 import com.example.campusexpensemanager.main.Model.Expense_Tracking_Model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Expense_Tracking_Repository extends SQLite_Campus {
+
+    @SuppressLint("NewApi")
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public Expense_Tracking_Repository(@Nullable Context context) {
         super(context);
+    }
+
+    private LocalDateTime parseDateSafe(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) return null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null;
+
+        DateTimeFormatter[] formatters = new DateTimeFormatter[]{
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        };
+
+        for (DateTimeFormatter fmt : formatters) {
+            try {
+                if (dateStr.length() == 10) {
+                    return LocalDate.parse(dateStr, fmt).atStartOfDay();
+                } else {
+                    return LocalDateTime.parse(dateStr, fmt);
+                }
+            } catch (Exception ignored) {}
+        }
+        return null;
     }
 
     @SuppressLint("Range")
@@ -27,51 +55,37 @@ public class Expense_Tracking_Repository extends SQLite_Campus {
         ArrayList<Expense_Tracking_Model> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM " + SQLite_Campus.DB_TABLE_EXPENSE_TRACKING +
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM " + SQLite_Campus.DB_TABLE_EXPENSE_TRACKING +
                         " WHERE " + SQLite_Campus.COL_EXP_TRACKING_USER_ID + " = ?",
-                new String[]{String.valueOf(userID)});
+                new String[]{String.valueOf(userID)}
+        );
 
         if (cursor != null && cursor.moveToFirst()) {
-            DateTimeFormatter formatter = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            }
-
             do {
-                LocalDateTime createdAt = null, updatedAt = null;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && formatter != null) {
-                    String createdStr = cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_CREATED_AT));
-                    String updatedStr = cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_UPDATED_AT));
-
-                    if (createdStr != null && !createdStr.isEmpty()) createdAt = LocalDateTime.parse(createdStr, formatter);
-                    if (updatedStr != null && !updatedStr.isEmpty()) updatedAt = LocalDateTime.parse(updatedStr, formatter);
-                }
-
                 list.add(new Expense_Tracking_Model(
                         cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_ID)),
                         cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_NAME)),
                         cursor.getDouble(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_EXPENSE)),
                         cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_NOTE)),
-                        createdAt,
-                        updatedAt,
+                        parseDateSafe(cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_CREATED_AT))),
+                        parseDateSafe(cursor.getString(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_UPDATED_AT))),
                         cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_CATEGORY_ID)),
                         cursor.getInt(cursor.getColumnIndex(SQLite_Campus.COL_EXP_TRACKING_USER_ID))
                 ));
             } while (cursor.moveToNext());
-
             cursor.close();
         }
-
         db.close();
         return list;
     }
 
     public long addNewTracking(String name, double expense, String note,
                                int categoryId, int userID) {
-        @SuppressLint({"NewApi", "LocalSuppress"}) DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        @SuppressLint({"NewApi", "LocalSuppress"}) ZonedDateTime zone = ZonedDateTime.now();
-        @SuppressLint({"NewApi", "LocalSuppress"}) String currentDate = dtf.format(zone);
+        String currentDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            currentDate = DATE_FORMAT.format(ZonedDateTime.now());
+        }
 
         ContentValues values = new ContentValues();
         values.put(SQLite_Campus.COL_EXP_TRACKING_NAME, name);
@@ -87,6 +101,40 @@ public class Expense_Tracking_Repository extends SQLite_Campus {
         return insert;
     }
 
+    public long editTracking(int id, String name, Double expense, String note,
+                             Integer categoryId, Integer userId) {
+        String currentDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            currentDate = DATE_FORMAT.format(ZonedDateTime.now());
+        }
+
+        ContentValues values = new ContentValues();
+        if (name != null) values.put(SQLite_Campus.COL_EXP_TRACKING_NAME, name);
+        if (expense != null) values.put(SQLite_Campus.COL_EXP_TRACKING_EXPENSE, expense);
+        if (note != null) values.put(SQLite_Campus.COL_EXP_TRACKING_NOTE, note);
+        if (categoryId != null) values.put(SQLite_Campus.COL_EXP_TRACKING_CATEGORY_ID, categoryId);
+        if (userId != null) values.put(SQLite_Campus.COL_EXP_TRACKING_USER_ID, userId);
+
+        values.put(SQLite_Campus.COL_EXP_TRACKING_UPDATED_AT, currentDate);
+
+        String condition = SQLite_Campus.COL_EXP_TRACKING_ID + "=?";
+        String[] args = { String.valueOf(id) };
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        long result = db.update(SQLite_Campus.DB_TABLE_EXPENSE_TRACKING, values, condition, args);
+        db.close();
+        return result;
+    }
+
+    public long deleteTrackingById(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String condition = SQLite_Campus.COL_EXP_TRACKING_ID + "=?";
+        String[] args = { String.valueOf(id) };
+
+        long result = db.delete(SQLite_Campus.DB_TABLE_EXPENSE_TRACKING, condition, args);
+        db.close();
+        return result;
+    }
 
 
 }

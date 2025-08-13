@@ -1,5 +1,8 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,8 +11,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.campusexpensemanager.R;
+import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
+import com.example.campusexpensemanager.main.Activity.Recurring.EditRecurringActivity;
+import com.example.campusexpensemanager.main.Activity.Tracking.EditTrackingActivity;
+import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
+import com.example.campusexpensemanager.main.Adapter.Recurring_Adapter;
+import com.example.campusexpensemanager.main.Adapter.Tracking_Adapter;
+import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
+import com.example.campusexpensemanager.main.Model.Expense_Recurring_Model;
+import com.example.campusexpensemanager.main.Model.Expense_Tracking_Model;
+import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
+import com.example.campusexpensemanager.main.Repository.Expense_Reccuring_Repository;
+import com.example.campusexpensemanager.main.Repository.Expense_Tracking_Repository;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +45,8 @@ public class ExpenseFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+
 
     public ExpenseFragment() {
         // Required empty public constructor
@@ -62,6 +82,7 @@ public class ExpenseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_expense, container, false);
 
         btnRecurring = view.findViewById(R.id.btnRecurring);

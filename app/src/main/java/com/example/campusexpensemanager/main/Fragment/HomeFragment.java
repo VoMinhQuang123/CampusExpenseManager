@@ -1,32 +1,33 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.campusexpensemanager.R;
-import com.example.campusexpensemanager.main.Adapter.Category_Adapter;
-import com.example.campusexpensemanager.main.Adapter.Overview_Adapter;
+import com.example.campusexpensemanager.main.Adapter.Home_Adapter;
+import com.example.campusexpensemanager.main.Model.CategoryData;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
+import com.example.campusexpensemanager.main.Model.Expense_Recurring_Model;
+import com.example.campusexpensemanager.main.Model.Expense_Tracking_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
+import com.example.campusexpensemanager.main.Repository.Expense_Reccuring_Repository;
+import com.example.campusexpensemanager.main.Repository.Expense_Tracking_Repository;
+
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,11 +44,12 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private ArrayList<Category_Expense_Model> budgetModels;
-    private Overview_Adapter budget;
-    private Category_Expense_Model model;
-    private Category_Expense_Repository repository;
-    private RecyclerView budgetRCC;
+    private  Category_Expense_Repository repository1;
+    private Expense_Reccuring_Repository repository2;
+    private Expense_Tracking_Repository repository3;
+    private Home_Adapter adapter;
+    private RecyclerView recyclerView;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -80,69 +82,67 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        repository1 = new Category_Expense_Repository(getContext());
+        repository2 = new Expense_Reccuring_Repository(getContext());
+        repository3 = new Expense_Tracking_Repository(getContext());
 
-//        View view = inflater.inflate(R.layout.fragment_home, container, false);
-//        PieChart pieChart = view.findViewById(R.id.pieChart);
-//        repository = new Category_Expense_Repository(getActivity());
-//        budgetRCC = view.findViewById(R.id.rvBudget);
-//        budgetModels = new ArrayList<>();
-//        repository = new Category_Expense_Repository(getActivity());
-//        budgetModels= repository.getListBudget();
-//        budget = new Overview_Adapter(budgetModels, getContext());
-//        LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-//        budgetRCC.setLayoutManager(manager);
-//        budgetRCC.setAdapter(budget);
-//
-//
-//        Map<Integer, Integer> categoryExpenses = repository.getExpenseByCategory(0);
-//        int totalAll = 0;
-//        for (int value : categoryExpenses.values()) {
-//            totalAll += value;
-//        }
-//        List<PieEntry> entries = new ArrayList<>();
-//        for (Map.Entry<Integer, Integer> entry : categoryExpenses.entrySet()) {
-//            float percent = (float) entry.getValue() * 100 / totalAll;
-//            PieEntry pieEntry = new PieEntry(percent, "" + entry.getKey());
-//            pieEntry.setData(entry.getKey()); // ✅ Gán categoryId vào PieEntry
-//            entries.add(pieEntry);
-//        }
-//        PieDataSet dataSet = new PieDataSet(entries, "");
-//        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-//        PieData data = new PieData(dataSet);
-//        pieChart.setData(data);
-//        pieChart.invalidate(); // refresh chart
-//
-//
-//        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-//            @Override
-//            public void onValueSelected(Entry e, Highlight h) {
-//                if (e instanceof PieEntry) {
-//                    PieEntry pieEntry = (PieEntry) e;
-//                    int categoryId = (int) pieEntry.getData(); // ép kiểu đúng
-//                    showExpensesByCategory(categoryId); // gọi hiển thị chi tiết
-//                }
-//            }
-//            @Override
-//            public void onNothingSelected() {
-//                showAllExpenses();
-//
-//            }
-//        });
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        recyclerView = view.findViewById(R.id.rvBudget);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Lấy userId từ SharedPreferences
+        SharedPreferences prefs = getContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("userId", -1);
+        if (userId == -1) {
+            // Xử lý trường hợp chưa có userId (chưa đăng nhập,...)
+            return view;
+        }
+
+        ArrayList<Category_Expense_Model> categoryList = repository1.getListBudget(userId);
+        ArrayList<Expense_Recurring_Model> recurringList = repository2.getListRecurring(userId);
+        ArrayList<Expense_Tracking_Model> trackingList = repository3.getListTracking(userId);
+
+        List<CategoryData> categoryDataList = new ArrayList<>();
+
+        for (Category_Expense_Model category : categoryList) {
+            int catId = category.getId();
+            String catName = category.getName();
+
+            int totalCategory = category.getBudget();
+
+            // Tính tổng chi tiêu Recurring cho category
+            double recurringSum = 0;
+            for (Expense_Recurring_Model rec : recurringList) {
+                if (rec.getCategoryId() == catId) {
+                    recurringSum += rec.getExpense();
+                }
+            }
+
+            // Tính tổng chi tiêu Tracking cho category
+            double trackingSum = 0;
+            for (Expense_Tracking_Model track : trackingList) {
+                if (track.getCategoryId() == catId) {
+                    trackingSum += track.getExpense();
+                }
+            }
+
+            double totalSpent = recurringSum + trackingSum;
+
+            categoryDataList.add(new CategoryData(catName, (int) totalSpent, totalCategory));
+        }
+        Log.d("HomeFragment", "CategoryDataList size: " + categoryDataList.size());
+        for (CategoryData data : categoryDataList) {
+            Log.d("HomeFragment", "Category: " + data.getName() + ", TotalSpent: " + data.getTotalSpent() + ", TotalBudget: " + data.getTotalCategory());
+        }
+
+        // Tạo và set adapter cho recyclerView
+        adapter = new Home_Adapter(getContext(), categoryDataList);
+        recyclerView.setAdapter(adapter);
+
+        return view;
     }
-//    private void showExpensesByCategory(int categoryId) {
-//        ArrayList<Category_Expense_Model> filtered = repository.getExpensesByCategoryId(categoryId);
-//        budget.setData(filtered);
-//        budget.notifyDataSetChanged();
-//    }
-//
-//    private void showAllExpenses() {
-//        ArrayList<Category_Expense_Model> filtered = repository.getExpensesByCategoryId(0);
-//        budget.setData(filtered);
-//        budget.notifyDataSetChanged();
-//    }
-
 }

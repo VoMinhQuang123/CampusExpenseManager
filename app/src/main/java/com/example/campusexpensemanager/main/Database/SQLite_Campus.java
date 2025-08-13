@@ -10,7 +10,7 @@ public class SQLite_Campus extends SQLiteOpenHelper {
 
     private static final String DB_Name = "Campus_Expensive";
 
-    private static final int DB_version = 4;
+    private static final int DB_version = 10;
 
     //User table
     protected static final String DB_table_user = "User";
@@ -28,9 +28,9 @@ public class SQLite_Campus extends SQLiteOpenHelper {
     protected static final String COL_BUDGET_NAME = "name";
     protected static final String COL_BUDGET_EXPENSIVE = "expensive";
     protected static final String COL_BUDGET_DESCRIPTION = "description";
-    protected  static  final String COL_BUDGET_USERID = "userID";
+    protected static final String COL_BUDGET_USERID = "userID";
 
-    // table expense
+    // table expense_tracking
     protected static final String DB_TABLE_EXPENSE_TRACKING = "expense_tracking";
     protected static final String COL_EXP_TRACKING_ID = "id_Tracking";
     protected static final String COL_EXP_TRACKING_NAME = "name";
@@ -41,7 +41,7 @@ public class SQLite_Campus extends SQLiteOpenHelper {
     protected static final String COL_EXP_TRACKING_CATEGORY_ID = "categoryId";
     protected static final String COL_EXP_TRACKING_USER_ID = "userID";
 
-    // table recurring
+    // table expense_recurring
     protected static final String DB_TABLE_EXPENSE_RECURRING = "expense_recurring";
     protected static final String COL_EXP_RECURRING_ID = "id_Recurring";
     protected static final String COL_EXP_RECURRING_NAME = "name";
@@ -61,33 +61,36 @@ public class SQLite_Campus extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // tao bang user
+        // Tạo bảng User
         String CreateUserTable = "CREATE TABLE "
-                + DB_table_user     + " ( "
-                + COl_User_ID       + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + DB_table_user + " ( "
+                + COl_User_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_User_USERNAME + " VARCHAR(200) NOT NULL, "
                 + COL_User_Password + " VARCHAR(200) NOT NULL, "
-                + COL_User_Email    + " VARCHAR(100) NOT NULL, "
-                + COL_User_Phone    + " VARCHAR(10), "
-                + COL_Create_at     + " DATETIME, "
-                + COL_Update_at     + " DATETIME ) ";
+                + COL_User_Email + " VARCHAR(100) NOT NULL, "
+                + COL_User_Phone + " VARCHAR(10), "
+                + COL_Create_at + " DATETIME, "
+                + COL_Update_at + " DATETIME ) ";
         db.execSQL(CreateUserTable);
 
-        // tạo bảng budget
+        // Tạo bảng Budget
         String CreateBudgetTable = "CREATE TABLE "
-                + DB_TABLE_BUDGET        + "("
-                + COL_BUDGET_ID          + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COL_BUDGET_NAME        + " VARCHAR(200) NOT NULL,"
-                + COL_BUDGET_EXPENSIVE   + " INTEGER NOT NULL,"
+                + DB_TABLE_BUDGET + "("
+                + COL_BUDGET_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COL_BUDGET_NAME + " VARCHAR(200) NOT NULL,"
+                + COL_BUDGET_EXPENSIVE + " INTEGER NOT NULL,"
                 + COL_BUDGET_DESCRIPTION + " TEXT,"
-                + COL_Create_at          + " DATETIME,"
-                + COL_Update_at          + " DATETIME,"
-                + COL_BUDGET_USERID      + " INTEGER NOT NULL, "
+                + COL_Create_at + " DATETIME,"
+                + COL_Update_at + " DATETIME,"
+                + COL_BUDGET_USERID + " INTEGER NOT NULL, "
                 + " FOREIGN KEY(" + COL_BUDGET_USERID + ") REFERENCES " + DB_table_user + "(" + COl_User_ID + ")"
                 + " )";
         db.execSQL(CreateBudgetTable);
 
-        // Expense Tracking table
+        // Chèn mặc định category Other với id = 1
+
+
+        // Tạo bảng Expense Tracking
         String CreateExpenseTrackingTable = "CREATE TABLE " + DB_TABLE_EXPENSE_TRACKING + " ("
                 + COL_EXP_TRACKING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_EXP_TRACKING_NAME + " TEXT NOT NULL, "
@@ -95,13 +98,14 @@ public class SQLite_Campus extends SQLiteOpenHelper {
                 + COL_EXP_TRACKING_NOTE + " TEXT, "
                 + COL_EXP_TRACKING_CREATED_AT + " DATETIME, "
                 + COL_EXP_TRACKING_UPDATED_AT + " DATETIME, "
-                + COL_EXP_TRACKING_CATEGORY_ID + " INTEGER, "
+                + COL_EXP_TRACKING_CATEGORY_ID + " INTEGER DEFAULT 1, "
                 + COL_EXP_TRACKING_USER_ID + " INTEGER, "
                 + "FOREIGN KEY(" + COL_EXP_TRACKING_USER_ID + ") REFERENCES " + DB_table_user + "(" + COl_User_ID + "), "
                 + "FOREIGN KEY(" + COL_EXP_TRACKING_CATEGORY_ID + ") REFERENCES " + DB_TABLE_BUDGET + "(" + COL_BUDGET_ID + ")"
                 + ")";
         db.execSQL(CreateExpenseTrackingTable);
 
+        // Tạo bảng Expense Recurring
         String CreateExpenseRecurringTable = "CREATE TABLE " + DB_TABLE_EXPENSE_RECURRING + " ("
                 + COL_EXP_RECURRING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_EXP_RECURRING_NAME + " TEXT NOT NULL, "
@@ -112,20 +116,26 @@ public class SQLite_Campus extends SQLiteOpenHelper {
                 + COL_EXP_RECURRING_REPEAT_INTERVAL + " INTEGER NOT NULL, "
                 + COL_EXP_RECURRING_START_DATE + " DATETIME, "
                 + COL_EXP_RECURRING_END_DATE + " DATETIME, "
-                + COL_EXP_RECURRING_CATEGORY_ID + " INTEGER, "
+                + COL_EXP_RECURRING_CATEGORY_ID + " INTEGER DEFAULT 1, "
                 + COL_EXP_RECURRING_USER_ID + " INTEGER, "
                 + "FOREIGN KEY(" + COL_EXP_RECURRING_USER_ID + ") REFERENCES " + DB_table_user + "(" + COl_User_ID + "), "
                 + "FOREIGN KEY(" + COL_EXP_RECURRING_CATEGORY_ID + ") REFERENCES " + DB_TABLE_BUDGET + "(" + COL_BUDGET_ID + ")"
                 + ")";
         db.execSQL(CreateExpenseRecurringTable);
+        String insertDefaultCategory = "INSERT INTO " + DB_TABLE_BUDGET +
+                " (" + COL_BUDGET_ID + ", " + COL_BUDGET_NAME + ", " + COL_BUDGET_EXPENSIVE + ", " + COL_BUDGET_DESCRIPTION + ", " + COL_Create_at + ", " + COL_Update_at + ", " + COL_BUDGET_USERID + ") " +
+                "VALUES (1, 'Other', 0, 'Default category', datetime('now'), datetime('now'), 0);";
+        db.execSQL(insertDefaultCategory);
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion != newVersion){
+        if (oldVersion != newVersion) {
             db.execSQL("DROP TABLE IF EXISTS " + DB_table_user);
             db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_BUDGET);
             db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_EXPENSE_TRACKING);
             db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE_EXPENSE_RECURRING);
-            onCreate(db);}
+            onCreate(db);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.campusexpensemanager.main.Fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
@@ -45,6 +48,7 @@ public class CategoryFragment extends Fragment {
     private Category_Expense_Model model;
     private Category_Expense_Repository repository;
     private RecyclerView budgetRCC;
+    private Button btnCreateBudget;
 
     public CategoryFragment() {
         // Required empty public constructor
@@ -78,61 +82,104 @@ public class CategoryFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate layout fragment
+        View view = inflater.inflate(R.layout.fragment_category, container, false);
+
+        // Lấy userId từ SharedPreferences
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         int userId = sharedPref.getInt("userId", -1);
 
-        View view =  inflater.inflate(R.layout.fragment_category, container, false);
-        Button btnCreateBudget = view.findViewById(R.id.btnbudgetCeater);
+        // Ánh xạ các view
+        btnCreateBudget = view.findViewById(R.id.btnbudgetCeater);
         budgetRCC = view.findViewById(R.id.rvBudget);
-        budgetModels = new ArrayList<>();
+        ViewExpense = view.findViewById(R.id.viewExpense);
+
+        // Khởi tạo repository và lấy danh sách budget theo userId
         repository = new Category_Expense_Repository(getActivity());
+        budgetModels = repository.getListBudget(userId);
 
-        budgetModels= repository.getListBudget(userId);
-
+        // Khởi tạo adapter và gán cho RecyclerView
         budget = new Category_Adapter(budgetModels, getContext());
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         budgetRCC.setLayoutManager(manager);
         budgetRCC.setAdapter(budget);
 
-
-
-        ViewExpense = view.findViewById(R.id.viewExpense);
+        // Hiển thị tổng số tiền
         int total = repository.getTotalExpense(userId);
         ViewExpense.setText("Amounts: " + total + " VNĐ");
 
-
-        budget.setOnClickListener(new Category_Adapter.OnClickListener() {
-            @Override
-            public void onClick(int position) {
-                Category_Expense_Model model1 = budgetModels.get(position);
-                String name = model1.getName();
-                int expenseve = model1.getBudget();
-                int id = model1.getId();
-                String des = model1.getDescription();
-                // use intent + bundle sang edit
-                // Toast.makeText(getActivity(), name, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), EditCategoryActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("ID_BUDGET", id);
-                bundle.putString("NAME_BUDGET", name);
-                bundle.putInt("MONEY_BUDGET", expenseve);
-                bundle.putString("DESCRIPTION", des);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
+        // Xử lý sự kiện click vào item để sửa
+        budget.setOnClickListener(position -> {
+            Category_Expense_Model model1 = budgetModels.get(position);
+            Intent intent = new Intent(getActivity(), EditCategoryActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("ID_BUDGET", model1.getId());
+            bundle.putString("NAME_BUDGET", model1.getName());
+            bundle.putInt("MONEY_BUDGET", model1.getBudget());
+            bundle.putString("DESCRIPTION", model1.getDescription());
+            intent.putExtras(bundle);
+            startActivity(intent);
         });
 
-        btnCreateBudget.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddCategoryActivity.class);
-                startActivity(intent);
+        budget.setOnDeleteListener(position -> {
+            Category_Expense_Model itemToDelete = budgetModels.get(position);
+            int idToDelete = itemToDelete.getId();
+
+            if (idToDelete == 1) {
+                Toast.makeText(getContext(), "Category 'Other' không được phép xóa", Toast.LENGTH_SHORT).show();
+                return; // không cho phép xóa
             }
+
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận")
+                    .setMessage("Bạn có chắc chắn muốn xóa mục này?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        long result = repository.deleteBudget(idToDelete);
+
+                        if (result > 0) {
+                            Toast.makeText(getContext(), "Xóa thành công", Toast.LENGTH_SHORT).show();
+                            budgetModels.remove(position);
+                            budget.notifyItemRemoved(position);
+
+                            // Cập nhật lại các bản ghi tracking & recurring gán về category 'Other'
+                            repository.updateTrackingCategoryToOther(idToDelete);
+                            repository.updateRecurringCategoryToOther(idToDelete);
+
+                            // Cập nhật tổng tiền sau khi xóa
+                            int newTotal = repository.getTotalExpense(userId);
+                            ViewExpense.setText("Amounts: " + newTotal + " VNĐ");
+                        } else {
+                            Toast.makeText(getContext(), "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
+
+
+        // Nút tạo budget mới
+        btnCreateBudget.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), AddCategoryActivity.class);
+            startActivity(intent);
+        });
+
         return view;
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPref.getInt("userId", -1);
+
+        budgetModels.clear();
+        budgetModels.addAll(repository.getListBudget(userId));
+        budget.notifyDataSetChanged();
+
+        int total = repository.getTotalExpense(userId);
+        ViewExpense.setText("Amounts: " + total + " VNĐ");
+    }
+
 
 
 }

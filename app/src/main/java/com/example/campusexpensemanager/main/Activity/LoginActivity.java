@@ -17,6 +17,9 @@ import com.example.campusexpensemanager.R;
 import com.example.campusexpensemanager.main.Model.User_Model;
 import com.example.campusexpensemanager.main.Repository.User_Repository;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class LoginActivity extends AppCompatActivity {
     EditText Name, Pass;
     Button btnLogin;
@@ -48,13 +51,17 @@ public class LoginActivity extends AppCompatActivity {
                     Pass.setError("Ngu 2");
                     return;
                 }
-                user.getInforUserByUsername(name, pass);
-                User_Model use = user.getInforUserByUsername(name, pass);
+                String pass1 = Pass.getText().toString().trim();
+                String hashedPass = hashPassword(pass1); // Hash mật khẩu nhập
+
+                User_Model use = user.getInforUserByUsername(name, hashedPass);
                 assert use != null;
                 if(use.getId() > 0 && use.getUsername() != null){
                     SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putInt("userId", use.getId());
+                    editor.putString("username", name);  // lưu username
+                    editor.putString("password", pass);  // lưu password
                     editor.apply();
 
                     Intent intent = new Intent(LoginActivity.this, DashBroadActivity.class);
@@ -75,4 +82,19 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : bytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }

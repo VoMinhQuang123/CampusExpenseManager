@@ -11,27 +11,32 @@ public class Expense_Tracking_Model {
     private LocalDateTime update_at;
     private int categoryId;
     private int userID;
-    public Expense_Tracking_Model(int _id, String _name, double _expense, String _note, LocalDateTime _create_at, LocalDateTime _update_at, int _categoryId, int _userID) {
-        this.id         = _id;
-        this.name       = _name;
-        this.expense    = _expense;
-        this.note       = _note;
-        this.create_at  = _create_at;
-        this.update_at  = _update_at;
-        this.categoryId = _categoryId;
-        this.userID     = _userID;
+    public Expense_Tracking_Model(){
+
     }
+    public Expense_Tracking_Model(int _id, String _name, double _expense, String _note,
+                                  LocalDateTime _create_at, LocalDateTime _update_at,
+                                  int _categoryId, int _userID) {
+        this.id = _id;
+        this.name = _name;
+        this.expense = _expense;
+        this.note = _note;
+        this.create_at = _create_at;
+        this.update_at = _update_at;
+        this.categoryId = _categoryId;
+        this.userID = _userID;
+    }
+
+    // Getter và Setter
     public int getId() {
         return id;
     }
     public void setId(int id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -71,5 +76,4 @@ public class Expense_Tracking_Model {
     public void setUserID(int userID) {
         this.userID = userID;
     }
-
 }

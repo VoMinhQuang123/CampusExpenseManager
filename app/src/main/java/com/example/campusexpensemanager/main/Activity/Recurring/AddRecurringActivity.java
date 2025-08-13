@@ -1,11 +1,11 @@
 package com.example.campusexpensemanager.main.Activity.Recurring;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,32 +17,44 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.campusexpensemanager.R;
-import com.example.campusexpensemanager.main.Activity.Category.AddCategoryActivity;
-import com.example.campusexpensemanager.main.Activity.Tracking.AddTrackingActivity;
-import com.example.campusexpensemanager.main.Fragment.CategoryFragment;
+import com.example.campusexpensemanager.main.Activity.Category.EditCategoryActivity;
 import com.example.campusexpensemanager.main.Fragment.ExpenseFragment;
 import com.example.campusexpensemanager.main.Model.Category_Expense_Model;
 import com.example.campusexpensemanager.main.Repository.Category_Expense_Repository;
 import com.example.campusexpensemanager.main.Repository.Expense_Reccuring_Repository;
-import com.example.campusexpensemanager.main.Repository.Expense_Tracking_Repository;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class AddRecurringActivity extends AppCompatActivity {
-    Button btnBack;
-    EditText edtName, edtExpense, edtNote, edtStartDate, edtEndDate, edtRepeatDays;
-    Spinner spinnerCategory;
-    Button btnAddRecurring;
-    ArrayList<Category_Expense_Model> categoryList;
-    Category_Expense_Repository repository_list;
-    Expense_Tracking_Repository repository;
+
+    private EditText edtName, edtExpense, edtNote, edtStartDate, edtEndDate, edtRepeatDays;
+    private Spinner spinnerCategory;
+    private Button btnAddRecurring, btnBack;
+
+    private ArrayList<Category_Expense_Model> categoryList;
+    private Category_Expense_Repository categoryRepository;
+    private Expense_Reccuring_Repository recurringRepository;
+    private int userId;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recurring);
+
+        initViews();
+        initRepositories();
+        loadUserId();
+        loadCategories();
+        setupDatePickers();
+        setupListeners();
+    }
+
+    /** Initialize UI components by finding views */
+    private void initViews() {
         edtName = findViewById(R.id.edtRecurringName);
         edtExpense = findViewById(R.id.edtRecurringExpense);
         edtNote = findViewById(R.id.edtRecurringNote);
@@ -52,26 +64,29 @@ public class AddRecurringActivity extends AppCompatActivity {
         spinnerCategory = findViewById(R.id.spinnerCategory);
         btnAddRecurring = findViewById(R.id.btnAddRecurring);
         btnBack = findViewById(R.id.btnBack);
-
-
+        // Prevent keyboard from showing on date fields
         edtStartDate.setFocusable(false);
         edtEndDate.setFocusable(false);
+    }
 
-        edtStartDate.setOnClickListener(v -> showDateTimePicker(edtStartDate));
-        edtEndDate.setOnClickListener(v -> showDateTimePicker(edtEndDate));
-
+    /** Initialize repositories for data access */
+    private void initRepositories() {
+        categoryRepository = new Category_Expense_Repository(this);
+        recurringRepository = new Expense_Reccuring_Repository(this);
+    }
+    /** Load user ID from SharedPreferences */
+    private void loadUserId() {
         SharedPreferences sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE);
-        int userId = sharedPref.getInt("userId", -1);
+        userId = sharedPref.getInt("userId", -1);
+    }
 
-        // Khởi tạo DB
-        repository_list = new Category_Expense_Repository(AddRecurringActivity.this);
-        categoryList = repository_list.getListBudget(userId);
+    /** Load category data and populate spinner */
+    private void loadCategories() {
+        categoryList = categoryRepository.getListBudget(userId);
 
-        repository = new Expense_Tracking_Repository(AddRecurringActivity.this);
-        // Tạo danh sách tên từ categoryList
         ArrayList<String> categoryNames = new ArrayList<>();
         for (Category_Expense_Model category : categoryList) {
-            categoryNames.add(category.getName()); // getName() là phương thức trả về tên category
+            categoryNames.add(category.getName());
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -80,111 +95,143 @@ public class AddRecurringActivity extends AppCompatActivity {
                 categoryNames
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinnerCategory.setAdapter(adapter);
-
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AddRecurringActivity.this, ExpenseFragment.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        btnAddRecurring.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = edtName.getText().toString().trim();
-                String expenseStr = edtExpense.getText().toString().trim();
-                String note = edtNote.getText().toString().trim();
-                String startDate = edtStartDate.getText().toString().trim();
-                String endDate = edtEndDate.getText().toString().trim();
-                String repeatStr = edtRepeatDays.getText().toString().trim();
-
-                if (TextUtils.isEmpty(name)) {
-                    edtName.setError("Nhập tên chi phí");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(expenseStr)) {
-                    edtExpense.setError("Nhập số tiền");
-                    return;
-                }
-
-                double expense = Double.parseDouble(expenseStr);
-                if (expense <= 0) {
-                    edtExpense.setError("Số tiền không hợp lệ");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(startDate)) {
-                    edtStartDate.setError("Nhập ngày bắt đầu");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(endDate)) {
-                    edtEndDate.setError("Nhập ngày kết thúc");
-                    return;
-                }
-
-                if (TextUtils.isEmpty(repeatStr)) {
-                    edtRepeatDays.setError("Nhập số ngày lặp");
-                    return;
-                }
-
-                int repeatInterval = Integer.parseInt(repeatStr);
-                if (repeatInterval <= 0) {
-                    edtRepeatDays.setError("Lặp không hợp lệ");
-                    return;
-                }
-
-                int selectedIndex = spinnerCategory.getSelectedItemPosition();
-                if (selectedIndex < 0 || selectedIndex >= categoryList.size()) {
-                    Toast.makeText(AddRecurringActivity.this, "Vui lòng chọn Category", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                int categoryId = categoryList.get(selectedIndex).getId();
-                Expense_Reccuring_Repository recurringRepository = new Expense_Reccuring_Repository(AddRecurringActivity.this);
-                long result = recurringRepository.addNewRecurring(
-                        name,
-                        expense,
-                        note,
-                        repeatInterval,
-                        startDate,
-                        endDate,
-                        categoryId,
-                        userId
-                );
-
-                if (result != -1) {
-                    Toast.makeText(AddRecurringActivity.this, "Thêm thành công", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(AddRecurringActivity.this, ExpenseFragment.class));
-                    finish();
-                } else {
-                    Toast.makeText(AddRecurringActivity.this, "Thêm thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-
     }
-    private void showDateTimePicker(EditText editText) {
+    /** Setup date pickers for start and end date EditTexts */
+    private void setupDatePickers() {
+        edtStartDate.setOnClickListener(v -> showDatePickerDialog(edtStartDate));
+        edtEndDate.setOnClickListener(v -> showDatePickerDialog(edtEndDate));
+    }
+    /** Show a DatePickerDialog and set selected date on the given EditText */
+    private void showDatePickerDialog(EditText editText) {
         final Calendar currentDate = Calendar.getInstance();
-        final Calendar date = Calendar.getInstance();
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-            date.set(year, month, dayOfMonth);
-            TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
-                date.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                date.set(Calendar.MINUTE, minute);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                editText.setText(sdf.format(date.getTime()));
-            }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), true);
-            timePickerDialog.show();
-        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE));
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.set(year, month, dayOfMonth);
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    editText.setText(sdf.format(selectedDate.getTime()));
+                },
+                currentDate.get(Calendar.YEAR),
+                currentDate.get(Calendar.MONTH),
+                currentDate.get(Calendar.DAY_OF_MONTH)
+        );
         datePickerDialog.show();
     }
 
+    /** Setup button click listeners */
+    private void setupListeners() {
+        btnBack.setOnClickListener(v -> {
+
+            finish();
+        });
+        btnAddRecurring.setOnClickListener(v -> {
+            if (validateInputs()) {
+                addNewRecurringExpense();
+            }
+        });
+    }
+    /** Validate all user inputs before saving */
+    private boolean validateInputs() {
+        if (TextUtils.isEmpty(edtName.getText().toString().trim())) {
+            edtName.setError("Nhập tên chi phí");
+            return false;
+        }
+
+        String expenseStr = edtExpense.getText().toString().trim();
+        if (TextUtils.isEmpty(expenseStr)) {
+            edtExpense.setError("Nhập số tiền");
+            return false;
+        }
+        try {
+            double expense = Double.parseDouble(expenseStr);
+            if (expense <= 0) {
+                edtExpense.setError("Số tiền không hợp lệ");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            edtExpense.setError("Số tiền không hợp lệ");
+            return false;
+        }
+
+        // Check date fields are not empty
+        String startDateStr = edtStartDate.getText().toString().trim();
+        String endDateStr = edtEndDate.getText().toString().trim();
+
+        if (TextUtils.isEmpty(startDateStr)) {
+            edtStartDate.setError("Nhập ngày bắt đầu");
+            return false;
+        }
+        if (TextUtils.isEmpty(endDateStr)) {
+            edtEndDate.setError("Nhập ngày kết thúc");
+            return false;
+        }
+
+        // Kiểm tra start date <= end date
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        try {
+            if (sdf.parse(startDateStr).after(sdf.parse(endDateStr))) {
+                Toast.makeText(this, "Start date phải nhỏ hơn hoặc bằng End date", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } catch (ParseException e) {
+            Toast.makeText(this, "Ngày không hợp lệ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (TextUtils.isEmpty(edtRepeatDays.getText().toString().trim())) {
+            edtRepeatDays.setError("Nhập số ngày lặp");
+            return false;
+        }
+        try {
+            int repeat = Integer.parseInt(edtRepeatDays.getText().toString().trim());
+            if (repeat <= 0) {
+                edtRepeatDays.setError("Lặp không hợp lệ");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            edtRepeatDays.setError("Lặp không hợp lệ");
+            return false;
+        }
+
+        int selectedIndex = spinnerCategory.getSelectedItemPosition();
+        if (selectedIndex < 0 || selectedIndex >= categoryList.size()) {
+            Toast.makeText(this, "Vui lòng chọn Category", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+    /** Add new recurring expense to the database */
+    private void addNewRecurringExpense() {
+        String name = edtName.getText().toString().trim();
+        double expense = Double.parseDouble(edtExpense.getText().toString().trim());
+        String note = edtNote.getText().toString().trim();
+        String startDate = edtStartDate.getText().toString().trim();
+        String endDate = edtEndDate.getText().toString().trim();
+        int repeatInterval = Integer.parseInt(edtRepeatDays.getText().toString().trim());
+
+        int selectedIndex = spinnerCategory.getSelectedItemPosition();
+
+        int categoryId = categoryList.get(selectedIndex).getId();
+        long result = recurringRepository.addNewRecurring(
+                name,
+                expense,
+                note,
+                repeatInterval,
+                startDate,
+                endDate,
+                categoryId,
+                userId
+        );
+
+        if(result != -1){
+            Toast.makeText(AddRecurringActivity.this, "create success", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK); // Báo cho Activity trước là đã thêm thành công
+            finish(); // Đóng AddCategoryActivity
+        }
+    }
 }

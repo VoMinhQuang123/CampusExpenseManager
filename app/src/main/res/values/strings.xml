@@ -5,4 +5,7 @@
     <string name="open_drawer">Open</string>
     <string name="close_drawer">Close</string>
     <string name="overview_expensive">Overview Expensive</string>
+    <string name="back">Back</string>
+    <string name="edit_information">Edit information</string>
+    <string name="th_ng_tin_t_i_kho_n">Thông tin tài khoản</string>
 </resources>

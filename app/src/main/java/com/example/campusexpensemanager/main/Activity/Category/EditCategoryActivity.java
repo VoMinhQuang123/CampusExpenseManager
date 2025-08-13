@@ -57,33 +57,29 @@ public class EditCategoryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int id =  ID_BUDGET ;
                 String name = edtNameBudget.getText().toString().trim();
-                int expensive = Integer.parseInt(edtBudgetMoney.getText().toString().trim());
+                String input = edtBudgetMoney.getText().toString().trim();
                 String descriptions = edtDescritions.getText().toString().trim();
                 if(TextUtils.isEmpty(name)){
                     edtNameBudget.setError("Null!");
                     return;
                 }
-                if(expensive <= 0){
-                    edtBudgetMoney.setError("Null!");
+                if (input.isEmpty()) {
+                    // Thông báo lỗi hoặc xử lý hợp lý
+                    Toast.makeText(EditCategoryActivity.this, "Vui lòng nhập số", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                long insert =  repository.editBudget(id, name, expensive, descriptions);
-                if(insert == -1){
-                    Toast.makeText(EditCategoryActivity.this, "can not create", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else {
+                int value = Integer.parseInt(input);
+                long insert =  repository.editBudget(id, name, value, descriptions);
+                if(insert != -1){
                     Toast.makeText(EditCategoryActivity.this, "create success", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(EditCategoryActivity.this, CategoryFragment.class);
-                    startActivity(intent);
+                    setResult(RESULT_OK); // Báo cho Activity trước là đã thêm thành công
+                    finish(); // Đóng AddCategoryActivity
                 }
             }
         });
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(EditCategoryActivity.this, CategoryFragment.class);
-                startActivity(intent);
                 finish();
             }
         });

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,14 +19,24 @@ public class Category_Adapter extends RecyclerView.Adapter<Category_Adapter.Cate
     public ArrayList<Category_Expense_Model> budgetModels;
     public Context context;
     public OnClickListener onClickListener;
+    public OnDeleteListener onDeleteListener;  // thêm callback xóa
 
     // Giao diện callback
     public interface OnClickListener {
         void onClick(int position);
     }
 
+    // Giao diện callback cho xóa
+    public interface OnDeleteListener {
+        void onDelete(int position);
+    }
+
     public void setOnClickListener(OnClickListener clickListener){
         this.onClickListener = clickListener;
+    }
+
+    public void setOnDeleteListener(OnDeleteListener deleteListener) {
+        this.onDeleteListener = deleteListener;
     }
 
     public Category_Adapter(ArrayList<Category_Expense_Model> model, Context context) {
@@ -55,18 +66,23 @@ public class Category_Adapter extends RecyclerView.Adapter<Category_Adapter.Cate
 
     public class CategoryItemViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvMoney;
+        ImageButton btnDelete;  // nút xóa
 
         public CategoryItemViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvBudget);
             tvMoney = itemView.findViewById(R.id.tvMoney);
+            btnDelete = itemView.findViewById(R.id.btnDelete);  // lấy nút xóa
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onClickListener != null) {
-                        onClickListener.onClick(getAdapterPosition());
-                    }
+            itemView.setOnClickListener(v -> {
+                if (onClickListener != null) {
+                    onClickListener.onClick(getAdapterPosition());
+                }
+            });
+
+            btnDelete.setOnClickListener(v -> {
+                if (onDeleteListener != null) {
+                    onDeleteListener.onDelete(getAdapterPosition());
                 }
             });
         }
